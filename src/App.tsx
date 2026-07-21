@@ -1,66 +1,33 @@
-import { useAuth0 } from "@auth0/auth0-react";
-import { api } from './config/axios';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
+import { PublicLayout } from './layouts/publicLayout';
+import { PrivateLayout } from './layouts/privateLayout';
+import { LandingPage } from './pages/LandingPage';
+import { DashboardPage } from './pages/DashboardPage';
 
 function App() {
-  const {
-    isLoading,
-    isAuthenticated,
-    error,
-    loginWithRedirect: login,
-    logout: auth0Logout,
-    user,
-  } = useAuth0();
+  const { isAuthenticated } = useAuth0();
 
-  const signup = () =>
-    login({ authorizationParams: { screen_hint: "signup" } });
+  return (
+    <Routes>
+      {/* 🌐 ZONA PÚBLICA */}
+      <Route element={<PublicLayout />}>
+        {/* Si ya está logueado y va a la raíz, lo pateamos directo al dashboard */}
+        <Route
+          path="/"
+          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LandingPage />}
+        />
+      </Route>
 
-  const logout = () =>
-    auth0Logout({ logoutParams: { returnTo: window.location.origin } });
-
-  if (isLoading) return <p>Loading...</p>;
-
-  return isAuthenticated ? (
-    <>
-      <p>Logged in as {user?.email}</p>
-      <h1>User Profile</h1>
-      <pre>{JSON.stringify(user, null, 2)}</pre>
-      <button onClick={logout}>Logout</button>
-
-      {/* ¡ACÁ INYECTAMOS NUESTRO COMPONENTE DE PRUEBA! 👇 */}
-      <TestApiButton />
-    </>
-  ) : (
-    <>
-      {error && <p>Error: {error.message}</p>}
-      <button onClick={signup}>Signup</button>
-      <button onClick={() => login()}>Login</button>
-    </>
+      {/* 🔐 ZONA PRIVADA (Todo lo que esté acá adentro está protegido) */}
+      <Route element={<PrivateLayout />}>
+        <Route path="/dashboard" element={<DashboardPage />} />
+        {/* Acá irás agregando tus futuras vistas: */}
+        {/* <Route path="/dashboard/planes" element={<PlanesPage />} /> */}
+        {/* <Route path="/dashboard/actividades" element={<ActividadesPage />} /> */}
+      </Route>
+    </Routes>
   );
 }
 
 export default App;
-
-// Tu componente de prueba sigue intacto acá abajo
-export const TestApiButton = () => {
-  const probarConexion = async () => {
-    try {
-      console.log("Enviando petición a la ruta inventada...");
-      await api.get('/ruta-super-secreta-de-prueba');
-      console.log("Petición enviada.");
-    } catch (error) {
-      console.log("La petición finalizó (Revisá la pestaña Red).");
-    }
-  };
-
-  return (
-    <div className="p-4 border border-gray-300 rounded mt-4">
-      <h3 className="text-lg font-bold mb-2">Laboratorio de Pruebas Axios</h3>
-      <button
-        onClick={probarConexion}
-        style={{ padding: '10px', backgroundColor: '#007bff', color: 'white', borderRadius: '5px' }}
-      >
-        Disparar petición al Backend
-      </button>
-    </div>
-  );
-};
