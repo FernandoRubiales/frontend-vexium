@@ -1,21 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import App from './App.tsx';
-import './index.css';
+import App from './App';
 import { Auth0ProviderConfig } from './auth/Auth0ProviderConfig';
-import { AxiosInterceptor } from './shared/api/AxiosInterceptor';
-import { AuthProvider } from './auth/AuthContext';
-ReactDOM.createRoot(document.getElementById('root')!).render(
+import './index.css';
+
+ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <React.StrictMode>
         <BrowserRouter>
             <Auth0ProviderConfig>
-                <AxiosInterceptor>
-                    <AuthProvider>
-                        <App />
-                    </AuthProvider>
-                </AxiosInterceptor>
+                <App />
             </Auth0ProviderConfig>
         </BrowserRouter>
-    </React.StrictMode>,
+    </React.StrictMode>
 );

@@ -1,35 +1,37 @@
-import React from 'react';
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { Spinner } from './Spinner';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    variant?: 'primary' | 'secondary' | 'danger';
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+    children: ReactNode;
+    variant?: 'primary' | 'secondary' | 'danger' | 'outline';
     isLoading?: boolean;
 }
 
-export const Button: React.FC<ButtonProps> = ({
+export const Button = ({
     children,
     variant = 'primary',
     isLoading = false,
     className = '',
     disabled,
     ...props
-}) => {
-    const baseStyle = "flex justify-center items-center font-semibold text-sm py-2 px-4 rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed";
- 
+}: ButtonProps) => {
+    const baseStyles = "px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm";
+
     const variants = {
-        primary: "bg-gradient-to-r from-vexium-cyan to-[#008f96] hover:from-vexium-cyan-hover hover:to-vexium-cyan text-white shadow-sm hover:shadow transition-all duration-200",
-        secondary: "bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 hover:border-slate-300 transition-all duration-200",
-        danger: "bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 hover:border-red-200 transition-all duration-200",
+        primary: "bg-[#00ADB5] hover:bg-[#00939B] text-white",
+        secondary: "bg-gray-200 hover:bg-gray-300 text-gray-800",
+        danger: "bg-red-50 hover:bg-red-100 text-red-600 border border-red-200",
+        outline: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300"
     };
 
     return (
         <button
-            className={`${baseStyle} ${variants[variant]} ${className}`}
-            disabled={isLoading || disabled}
+            className={`${baseStyles} ${variants[variant]} ${className}`}
+            disabled={disabled || isLoading}
             {...props}
         >
-            {isLoading ? <Spinner size="sm" color={variant === 'primary' ? 'text-gray-900' : 'text-white'} /> : children}
-            {isLoading && <span className="ml-2">Cargando...</span>}
+            {isLoading && <Spinner size="sm" />}
+            {children}
         </button>
     );
 };

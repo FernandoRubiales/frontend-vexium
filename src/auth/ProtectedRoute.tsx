@@ -1,32 +1,28 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useDbAuth } from './AuthContext';
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
+import { useSocio } from '../socios/context/SocioContext';
 import { Spinner } from '../shared/components/Spinner';
 
 interface ProtectedRouteProps {
-    // Le pasamos un arreglo con los roles que tienen permitido entrar acá
-    allowedRoles: Array<'ADMIN' | 'SOCIO' | 'RECEPCIONISTA'>;
-    children: React.ReactNode;
+    allowedRoles?: Array<'ADMIN' | 'RECEPCIONISTA' | 'SOCIO'>;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children }) => {
-    const { dbRole, isLoadingRole } = useDbAuth();
+// Usamos Outlet para que envuelva las rutas hijas en el App.tsx
+export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
+    const { isAuthenticated, isLoading: authLoading } = useAuth0();
+    const { socio, cargando: perfilLoading } = useSocio();
 
-    // 1. Mientras va a preguntar a la base de datos, mostramos el Spinner
-    if (isLoadingRole) {
-        return (
-            <div className="flex h-full min-h-[50vh] items-center justify-center">
-                <Spinner size="lg" />
-                <span className="ml-4 text-gray-600 font-bold">Verificando permisos...</span>
-            </div>
-        );
+    if (authLoading) return <div className="flex justify-center p-20"><Spinner /></div>;
+    if (!isAuthenticated) return <Navigate to="/" replace />;
+
+    if (perfilLoading) return <div className="flex justify-center p-20"><Spinner /></div>;
+    if (!socio) return <Navigate to="/" replace />;
+
+    if (allowedRoles && !allowedRoles.includes(socio.rol)) {
+        if (socio.rol === 'ADMIN') return <Navigate to="/dashboard/admin" replace />;
+        if (socio.rol === 'RECEPCIONISTA') return <Navigate to="/dashboard/recepcion" replace />;
+        return <Navigate to="/dashboard/socio" replace />;
     }
 
-    // 2. Si ya cargó y el rol NO está en la lista de permitidos, lo pateamos al Dashboard
-    if (!dbRole || !allowedRoles.includes(dbRole)) {
-        return <Navigate to="/dashboard" replace />;
-    }
-
-    // 3. Si tiene permiso, renderizamos la pantalla que pidió (ej: GestionPlanes)
-    return <>{children}</>;
+    return <Outlet />;
 };

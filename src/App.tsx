@@ -1,39 +1,31 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
-import { PublicLayout } from './shared/layouts/PublicLayout';
-import { PrivateLayout } from './shared/layouts/PrivateLayout';
+import { Routes, Route, Outlet } from 'react-router-dom';
+import { ProtectedRoute } from './auth/ProtectedRoute';
+import { SocioProvider } from './socios/context/SocioContext';
+
+// Importamos el dominio público
 import { LandingPage } from './landing/pages/LandingPage';
-import { AdminDashboard } from './dashboard/pages/AdminDashboard';
-import { GestionPlanes } from './planes/pages/GestionPlanes';
-import { ProtectedRoute } from './auth/ProtectedRoute'; // 👈 1. Importamos el guardián
+
+// Importaciones temporales para que no rompa (hasta que armemos los archivos reales)
+const AdminDashboard = () => <div className="p-10 text-2xl font-bold">Bienvenido, Administrador</div>;
+const GestionSocios = () => <div>Gestión Socios</div>;
 
 function App() {
-  const { isAuthenticated } = useAuth0();
-
   return (
     <Routes>
-      {/* 🌐 RUTAS PÚBLICAS */}
-      <Route element={<PublicLayout />}>
-        <Route
-          path="/"
-          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <LandingPage />}
-        />
-      </Route>
+      {/* 🌐 RUTA PÚBLICA */}
+      <Route path="/" element={<LandingPage />} />
 
       {/* 🔐 RUTAS PRIVADAS */}
-      <Route element={<PrivateLayout />}>
-        {/* Al Dashboard entran todos los que estén logueados, no pide rol específico */}
-        <Route path="/dashboard" element={<AdminDashboard />} />
+      <Route element={<SocioProvider><Outlet /></SocioProvider>}>
 
-        {/* 🛡️ RUTA BLINDADA: Solo para Administradores */}
-        <Route
-          path="/planes"
-          element={
-            <ProtectedRoute allowedRoles={['ADMIN']}>
-              <GestionPlanes />
-            </ProtectedRoute>
-          }
-        />
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard/admin" element={<AdminDashboard />} />
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+          <Route path="/socios" element={<GestionSocios />} />
+        </Route>
+
       </Route>
     </Routes>
   );

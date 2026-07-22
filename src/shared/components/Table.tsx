@@ -1,8 +1,8 @@
-import React from 'react';
+import type { ReactNode } from 'react';
 
-interface Column<T> {
+export interface Column<T> {
     header: string;
-    accessor: keyof T | ((row: T) => React.ReactNode);
+    accessor: keyof T | ((row: T) => ReactNode);
 }
 
 interface TableProps<T> {
@@ -12,37 +12,39 @@ interface TableProps<T> {
     emptyMessage?: string;
 }
 
-export const Table = <T,>({ data, columns, keyExtractor, emptyMessage = "No hay datos disponibles" }: TableProps<T>) => {
+export const Table = <T,>({ data, columns, keyExtractor, emptyMessage = "No hay registros disponibles" }: TableProps<T>) => {
     return (
-        <div className="overflow-x-auto bg-vexium-dark rounded-xl border border-vexium-border shadow-sm">
-            <table className="min-w-full text-left text-sm whitespace-nowrap">
-                <thead className="uppercase text-xs tracking-wider border-b border-vexium-border bg-[#084d54] text-white font-bold">
-                    <tr>
-                        {columns.map((col, index) => (
-                            <th key={index} className="px-6 py-4">{col.header}</th>
-                        ))}
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.length === 0 ? (
+        <div className="w-full overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+            <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm text-gray-600">
+                    <thead className="bg-[#115E59] text-white text-xs uppercase tracking-wider">
                         <tr>
-                            <td colSpan={columns.length} className="px-6 py-10 text-center text-vexium-text-muted italic">
-                                {emptyMessage}
-                            </td>
+                            {columns.map((col, index) => (
+                                <th key={index} className="px-6 py-4 font-bold">{col.header}</th>
+                            ))}
                         </tr>
-                    ) : (
-                        data.map((row) => (
-                            <tr key={keyExtractor(row)} className="border-b border-vexium-border hover:bg-cyan-50/20 transition duration-200 text-slate-700">
-                                {columns.map((col, index) => (
-                                    <td key={index} className="px-6 py-4 text-slate-600">
-                                        {typeof col.accessor === 'function' ? col.accessor(row) : String(row[col.accessor])}
-                                    </td>
-                                ))}
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                        {data.length === 0 ? (
+                            <tr>
+                                <td colSpan={columns.length} className="px-6 py-8 text-center text-gray-500 italic">
+                                    {emptyMessage}
+                                </td>
                             </tr>
-                        ))
-                    )}
-                </tbody>
-            </table>
+                        ) : (
+                            data.map((row) => (
+                                <tr key={keyExtractor(row)} className="hover:bg-gray-50 transition-colors">
+                                    {columns.map((col, index) => (
+                                        <td key={index} className="px-6 py-4 whitespace-nowrap">
+                                            {typeof col.accessor === 'function' ? col.accessor(row) : String(row[col.accessor])}
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))
+                        )}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };
