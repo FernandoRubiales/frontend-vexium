@@ -17,8 +17,6 @@ export const PublicLayout = () => {
                     </button>
                 )}
             </header>
-
-            {/* El Outlet inyecta la página que corresponda*/}
             <main className="flex-1">
                 <Outlet />
             </main>
