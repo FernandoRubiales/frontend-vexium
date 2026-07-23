@@ -13,7 +13,8 @@ export const Auth0ProviderConfig = ({ children }: { children: React.ReactNode })
             domain={import.meta.env.VITE_AUTH0_DOMAIN}
             clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
             authorizationParams={{
-                redirect_uri: window.location.origin,
+                // FORZAMOS EL ATERRIZAJE EN LA PÁGINA DE CALLBACK
+                redirect_uri: `${window.location.origin}/callback`,
                 audience: import.meta.env.VITE_AUTH0_AUDIENCE
             }}
             onRedirectCallback={onRedirectCallback}

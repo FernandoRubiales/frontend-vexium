@@ -1,5 +1,5 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { api } from '../api/axiosConfig.ts';
+import api from '../api/axiosConfig.ts';
 import type { AxiosResponse } from 'axios';
 
 export const useApi = () => {

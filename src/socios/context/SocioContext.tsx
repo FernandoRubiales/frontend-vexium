@@ -18,8 +18,10 @@ export const SocioProvider = ({ children }: { children: ReactNode }) => {
     const [cargando, setCargando] = useState<boolean>(true);
 
     useEffect(() => {
-        if (isAuthenticated && !isLoading) {
+        if (isAuthenticated) {
             cargarPerfil();
+        } else if (!isLoading) {
+            setCargando(false);
         }
     }, [isAuthenticated, isLoading]);
 
@@ -28,8 +30,7 @@ export const SocioProvider = ({ children }: { children: ReactNode }) => {
             const response = await callApi<Socio>('GET', '/socios/perfil');
             setSocio(response.data);
         } catch (error) {
-            console.error('Error al cargar el perfil:', error);
-        } finally {
+            console.error('Error al cargar perfil:', error);
             setCargando(false);
         }
     };
@@ -43,8 +44,6 @@ export const SocioProvider = ({ children }: { children: ReactNode }) => {
 
 export const useSocio = (): SocioContextType => {
     const context = useContext(SocioContext);
-    if (!context) {
-        throw new Error('useSocio debe usarse dentro de SocioProvider');
-    }
+    if (!context) throw new Error('useSocio debe usarse dentro de SocioProvider');
     return context;
 };

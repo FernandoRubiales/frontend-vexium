@@ -1,33 +1,38 @@
-import { Routes, Route, Outlet } from 'react-router-dom';
-import { ProtectedRoute } from './auth/ProtectedRoute';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Auth0ProviderConfig } from './auth/Auth0ProviderConfig';
+import ProtectedRoute from './auth/ProtectedRoute';
 import { SocioProvider } from './socios/context/SocioContext';
 
-// Importamos el dominio público
-import { LandingPage } from './landing/pages/LandingPage';
+// Páginas de Auth
+import LoginPage from './auth/pages/LoginPage';
+import CallbackPage from './auth/pages/CallbackPage';
 
-// Importaciones temporales para que no rompa (hasta que armemos los archivos reales)
-const AdminDashboard = () => <div className="p-10 text-2xl font-bold">Bienvenido, Administrador</div>;
-const GestionSocios = () => <div>Gestión Socios</div>;
+// Dashboard Temp (Asegurate de que este archivo exista en tu proyecto)
+import AdminDashboard from './dashboard/pages/AdminDashboard';
 
 function App() {
   return (
-    <Routes>
-      {/* 🌐 RUTA PÚBLICA */}
-      <Route path="/" element={<LandingPage />} />
+    <BrowserRouter>
+      <Auth0ProviderConfig>
+        <SocioProvider>
+          <Routes>
+            {/* Rutas Públicas */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/callback" element={<CallbackPage />} />
 
-      {/* 🔐 RUTAS PRIVADAS */}
-      <Route element={<SocioProvider><Outlet /></SocioProvider>}>
+            {/* Rutas Privadas */}
+            <Route path="/admin/dashboard" element={
+              <ProtectedRoute rolesPermitidos={['ADMIN']}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            } />
 
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard/admin" element={<AdminDashboard />} />
-        </Route>
-
-        <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
-          <Route path="/socios" element={<GestionSocios />} />
-        </Route>
-
-      </Route>
-    </Routes>
+            {/* Redirección por defecto */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
+          </Routes>
+        </SocioProvider>
+      </Auth0ProviderConfig>
+    </BrowserRouter>
   );
 }
 

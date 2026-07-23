@@ -1,28 +1,34 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useSocio } from '../socios/context/SocioContext';
-import { Spinner } from '../shared/components/Spinner';
+import Spinner from '../shared/components/Spinner';
+import type { ReactNode } from 'react';
 
 interface ProtectedRouteProps {
-    allowedRoles?: Array<'ADMIN' | 'RECEPCIONISTA' | 'SOCIO'>;
+    children: ReactNode;
+    rolesPermitidos?: ('ADMIN' | 'RECEPCIONISTA' | 'SOCIO')[];
 }
 
-// Usamos Outlet para que envuelva las rutas hijas en el App.tsx
-export const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
-    const { isAuthenticated, isLoading: authLoading } = useAuth0();
-    const { socio, cargando: perfilLoading } = useSocio();
+const ProtectedRoute = ({ children, rolesPermitidos }: ProtectedRouteProps) => {
+    const { isAuthenticated, isLoading } = useAuth0();
+    const { socio, cargando } = useSocio();
 
-    if (authLoading) return <div className="flex justify-center p-20"><Spinner /></div>;
-    if (!isAuthenticated) return <Navigate to="/" replace />;
-
-    if (perfilLoading) return <div className="flex justify-center p-20"><Spinner /></div>;
-    if (!socio) return <Navigate to="/" replace />;
-
-    if (allowedRoles && !allowedRoles.includes(socio.rol)) {
-        if (socio.rol === 'ADMIN') return <Navigate to="/dashboard/admin" replace />;
-        if (socio.rol === 'RECEPCIONISTA') return <Navigate to="/dashboard/recepcion" replace />;
-        return <Navigate to="/dashboard/socio" replace />;
+    // Mientras carga auth0 o el perfil del socio
+    if (isLoading || cargando) {
+        return <Spinner />;
     }
 
-    return <Outlet />;
+    // Si no está autenticado → login
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />;
+    }
+
+    // Si hay roles requeridos verificamos el del socio
+    if (rolesPermitidos && socio && !rolesPermitidos.includes(socio.rol)) {
+        return <Navigate to="/no-autorizado" replace />;
+    }
+
+    return <>{children}</>;
 };
+
+export default ProtectedRoute;

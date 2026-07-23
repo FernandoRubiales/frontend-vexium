@@ -1,56 +1,84 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useSocio } from '../../socios/context/SocioContext';
+
+interface NavItem {
+    label: string;
+    path: string;
+}
+
+const navItemsSocio: NavItem[] = [
+    { label: 'Inicio', path: '/socio/dashboard' },
+    { label: 'Mis Planes', path: '/socio/planes' },
+    { label: 'Clases Disponibles', path: '/socio/clases' },
+    { label: 'Mis Reservas', path: '/socio/reservas' },
+];
+
+const navItemsAdmin: NavItem[] = [
+    { label: 'Inicio', path: '/admin/dashboard' },
+    { label: 'Socios', path: '/admin/socios' },
+    { label: 'Planes', path: '/admin/planes' },
+    { label: 'Clases', path: '/admin/clases' },
+];
+
+const navItemsRecepcion: NavItem[] = [
+    { label: 'Inicio', path: '/recepcion/dashboard' },
+    { label: 'Registrar Pago', path: '/recepcion/pagos' },
+];
 
 export const Sidebar = () => {
     const { logout } = useAuth0();
     const { socio } = useSocio();
 
-    // Estilo para el link activo vs inactivo
-    const linkBaseClass = "block px-4 py-3 rounded transition-colors font-medium";
-    const getLinkClass = ({ isActive }: { isActive: boolean }) =>
-        isActive
-            ? `${linkBaseClass} bg-[#115E59] text-white border-l-4 border-[#00ADB5]`
-            : `${linkBaseClass} text-gray-300 hover:bg-[#115E59] hover:text-white`;
+    const navItems =
+        socio?.rol === 'ADMIN' ? navItemsAdmin :
+            socio?.rol === 'RECEPCIONISTA' ? navItemsRecepcion :
+                navItemsSocio;
 
     return (
-        <aside className="w-64 bg-[#0F373A] min-h-screen flex flex-col shadow-xl flex-shrink-0">
-            <div className="p-6 border-b border-[#115E59]">
-                <h1 className="text-2xl font-black text-white tracking-widest">VEXIUM</h1>
+        <aside className="w-64 min-h-screen bg-gray-900 text-white flex flex-col">
+            {/* Logo */}
+            <div className="p-6 border-b border-gray-700">
+                <h1 className="text-xl font-bold">🏋️ Gimnasio</h1>
+                <p className="text-sm text-gray-400 mt-1">
+                    {socio?.nombre} {socio?.apellido}
+                </p>
+                <span className="text-xs bg-blue-600 px-2 py-0.5 rounded-full mt-1 inline-block">
+                    {socio?.rol}
+                </span>
             </div>
 
-            <nav className="flex-1 p-4 space-y-2">
-                <NavLink to={`/dashboard/${socio?.rol.toLowerCase()}`} className={getLinkClass}>
-                    Inicio
-                </NavLink>
-
-                {socio?.rol === 'ADMIN' && (
-                    <>
-                        <NavLink to="/socios" className={getLinkClass}>Gestión de Socios</NavLink>
-                        <NavLink to="/planes" className={getLinkClass}>Gestión de Planes</NavLink>
-                    </>
-                )}
-
-                {socio?.rol === 'SOCIO' && (
-                    <>
-                        <NavLink to="/mis-planes" className={getLinkClass}>Mis Planes</NavLink>
-                        <NavLink to="/clases" className={getLinkClass}>Clases Disponibles</NavLink>
-                    </>
-                )}
+            {/* Nav */}
+            <nav className="flex-1 p-4 space-y-1">
+                {navItems.map(item => (
+                    <NavLink
+                        key={item.path}
+                        to={item.path}
+                        className={({ isActive }) =>
+                            `block px-4 py-2.5 rounded-lg text-sm font-medium transition ${isActive
+                                ? 'bg-blue-600 text-white'
+                                : 'text-gray-300 hover:bg-gray-800'
+                            }`
+                        }
+                    >
+                        {item.label}
+                    </NavLink>
+                ))}
             </nav>
 
-            <div className="p-4 border-t border-[#115E59] bg-[#0A2628]">
-                <div className="mb-4">
-                    <p className="text-xs text-gray-400">Rol: {socio?.rol}</p>
-                    <p className="text-sm font-bold text-white truncate">{socio?.email}</p>
-                </div>
+            {/* Logout */}
+            <div className="p-4 border-t border-gray-700">
                 <button
-                    onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
-                    className="w-full bg-[#00ADB5] hover:bg-[#00939B] text-white py-2 rounded font-bold transition-colors text-sm"
+                    onClick={() => logout({
+                        logoutParams: { returnTo: window.location.origin + '/login' }
+                    })}
+                    className="w-full text-left px-4 py-2.5 rounded-lg text-sm text-gray-300 hover:bg-gray-800 transition"
                 >
-                    Cerrar Sesión
+                    Cerrar sesión
                 </button>
             </div>
         </aside>
     );
 };
+
+export default Sidebar;
