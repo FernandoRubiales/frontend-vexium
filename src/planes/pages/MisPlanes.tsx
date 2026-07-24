@@ -11,17 +11,18 @@ const MisPlanes = () => {
     return (
         <Layout>
             <h1 className="text-2xl font-bold text-gray-800 mb-6">
-                Mis Planes
+                Planes
             </h1>
 
             {error && <ErrorMessage mensaje={error} />}
 
             {/* Planes activos */}
-            {misPlanes.length > 0 && (
-                <section className="mb-10">
-                    <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                        Planes activos
-                    </h2>
+            <section className="mb-10">
+                <h2 className="text-lg font-semibold text-gray-700 mb-4">
+                    Planes activos
+                </h2>
+
+                {misPlanes.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {misPlanes.map(sp => (
                             <div key={sp.id}
@@ -30,11 +31,11 @@ const MisPlanes = () => {
                                     <h3 className="font-semibold text-gray-800">
                                         {sp.nombrePlan}
                                     </h3>
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${sp.estadoMembresia === 'ACTIVA'
-                                        ? 'bg-green-100 text-green-700'
-                                        : 'bg-yellow-100 text-yellow-700'
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${sp.estadoSocioPlan === 'Activo'
+                                            ? 'bg-green-100 text-green-700'
+                                            : 'bg-yellow-100 text-yellow-700'
                                         }`}>
-                                        {sp.estadoMembresia}
+                                        {sp.estadoSocioPlan}
                                     </span>
                                 </div>
                                 <p className="text-sm text-gray-500 mb-1">
@@ -52,8 +53,12 @@ const MisPlanes = () => {
                             </div>
                         ))}
                     </div>
-                </section>
-            )}
+                ) : (
+                    <div className="bg-white rounded-2xl p-6 shadow text-gray-500 text-sm border border-gray-100">
+                        No tenés planes activos actualmente. ¡Elegí uno de los planes disponibles abajo para empezar!
+                    </div>
+                )}
+            </section>
 
             {/* Planes disponibles para contratar */}
             <section>
@@ -80,7 +85,7 @@ const MisPlanes = () => {
                                 onClick={() => contratarPlan(plan.id)}
                                 className="mt-auto bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition text-sm font-medium"
                             >
-                                Contratar y Pagar
+                                Elegir plan
                             </button>
                         </div>
                     ))}

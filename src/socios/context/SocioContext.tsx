@@ -31,6 +31,8 @@ export const SocioProvider = ({ children }: { children: ReactNode }) => {
             setSocio(response.data);
         } catch (error) {
             console.error('Error al cargar perfil:', error);
+
+        } finally {
             setCargando(false);
         }
     };

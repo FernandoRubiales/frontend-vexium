@@ -1,5 +1,5 @@
 import { useApi } from '../../shared/hooks/useApi';
-import { Plan, SocioPlan } from '../../shared/types';
+import type { Plan, SocioPlan } from '../../shared/types';
 
 export const usePlanApi = () => {
     const { callApi } = useApi();

@@ -9,9 +9,9 @@ interface NavItem {
 
 const navItemsSocio: NavItem[] = [
     { label: 'Inicio', path: '/socio/dashboard' },
-    { label: 'Mis Planes', path: '/socio/planes' },
-    { label: 'Clases Disponibles', path: '/socio/clases' },
-    { label: 'Mis Reservas', path: '/socio/reservas' },
+    { label: 'Planes', path: '/socio/mis-planes' },
+    { label: 'Clases', path: '/socio/clases' },
+    { label: 'Reservas', path: '/socio/reservas' },
 ];
 
 const navItemsAdmin: NavItem[] = [
@@ -31,20 +31,20 @@ export const Sidebar = () => {
     const { socio } = useSocio();
 
     const navItems =
-        socio?.rol === 'ADMIN' ? navItemsAdmin :
-            socio?.rol === 'RECEPCIONISTA' ? navItemsRecepcion :
+        socio?.nombreRol === 'ADMIN' ? navItemsAdmin :
+            socio?.nombreRol === 'RECEPCIONISTA' ? navItemsRecepcion :
                 navItemsSocio;
 
     return (
         <aside className="w-64 min-h-screen bg-gray-900 text-white flex flex-col">
             {/* Logo */}
             <div className="p-6 border-b border-gray-700">
-                <h1 className="text-xl font-bold">🏋️ Gimnasio</h1>
+                <h1 className="text-xl font-bold">VEXIUM GIM</h1>
                 <p className="text-sm text-gray-400 mt-1">
                     {socio?.nombre} {socio?.apellido}
                 </p>
                 <span className="text-xs bg-blue-600 px-2 py-0.5 rounded-full mt-1 inline-block">
-                    {socio?.rol}
+                    {socio?.nombreRol}
                 </span>
             </div>
 

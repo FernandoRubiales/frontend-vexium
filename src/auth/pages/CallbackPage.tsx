@@ -15,16 +15,20 @@ const CallbackPage = () => {
             return;
         }
 
-        // Si alguna de las dos cosas está procesando, nos quedamos quietos
         if (isLoading || cargando) return;
 
-        // Si ya cargó todo y estamos logueados, entramos
         if (isAuthenticated && socio) {
-            if (socio.rol === 'ADMIN') navigate('/admin/dashboard');
-            else if (socio.rol === 'RECEPCIONISTA') navigate('/recepcion/dashboard');
-            else navigate('/socio/dashboard');
-        } else {
-            // Si algo falló y no hay usuario, volvemos a empezar
+            // TypeScript ya reconoce 'nombreRol' gracias a la interfaz Socio
+            const rolNombre = socio.nombreRol ? socio.nombreRol.toUpperCase() : '';
+
+            if (rolNombre === 'ADMIN') {
+                navigate('/admin/dashboard');
+            } else if (rolNombre === 'RECEPCIONISTA') {
+                navigate('/recepcion/dashboard');
+            } else {
+                navigate('/socio/dashboard');
+            }
+        } else if (!isLoading && !cargando) {
             navigate('/login');
         }
     }, [isAuthenticated, isLoading, socio, cargando, error, navigate]);

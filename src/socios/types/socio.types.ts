@@ -7,7 +7,7 @@ export interface Socio {
     dni: number;
     email: string;
     telefono: string;
-    rol: 'ADMIN' | 'RECEPCIONISTA' | 'SOCIO';
+    nombreRol: "ADMIN" | "RECEPCIONISTA" | "SOCIO";
 }
 
 export interface SocioRequestDTO {

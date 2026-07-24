@@ -43,7 +43,7 @@ const GestionSocios = () => {
                                 </td>
                                 <td className="px-6 py-4">
                                     <select
-                                        value={socio.rol}
+                                        value={socio.nombreRol}
                                         onChange={e => actualizarRol(socio.id, e.target.value)}
                                         className="border border-gray-300 rounded-lg px-2 py-1 text-sm"
                                     >

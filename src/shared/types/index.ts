@@ -5,7 +5,7 @@ export interface Socio {
     email: string;
     telefono: string;
     dni: number;
-    rol: 'ADMIN' | 'RECEPCIONISTA' | 'SOCIO';
+    nombreRol: 'ADMIN' | 'RECEPCIONISTA' | 'SOCIO';
 }
 
 export interface Plan {
@@ -28,7 +28,7 @@ export interface SocioPlan {
     clasesIncluidas: number;
     fechaInicioSocioPlan: string | null;
     fechaVencimientoSocioPlan: string | null;
-    estadoMembresia: string;
+    estadoSocioPlan: string;
 }
 
 export interface Clase {
