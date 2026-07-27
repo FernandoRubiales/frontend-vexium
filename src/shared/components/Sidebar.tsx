@@ -11,7 +11,7 @@ const navItemsSocio: NavItem[] = [
     { label: 'Inicio', path: '/socio/dashboard' },
     { label: 'Planes', path: '/socio/mis-planes' },
     { label: 'Clases', path: '/socio/clases' },
-    { label: 'Reservas', path: '/socio/reservas' },
+    { label: 'Reservas', path: '/socio/mis-reservas' },
 ];
 
 const navItemsAdmin: NavItem[] = [

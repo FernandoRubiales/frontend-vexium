@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Clase } from '../../shared/types';
 import { useClaseApi } from '../api/claseApi';
 
-export const useClases = (soloDisponibles = false) => {
+export const useClases = (soloDisponibles = true) => {
     const [clases, setClases] = useState<Clase[]>([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -10,18 +10,26 @@ export const useClases = (soloDisponibles = false) => {
 
     const cargar = async () => {
         try {
-            const res = soloDisponibles
+            setCargando(true);
+            setError(null);
+
+            const data = soloDisponibles
                 ? await obtenerDisponiblesHoy()
                 : await obtenerTodas();
-            setClases(res.data);
-        } catch {
+
+            const lista = (data as any)?.data ? (data as any).data : data;
+            setClases(Array.isArray(lista) ? lista : []);
+        } catch (e) {
             setError('Error al cargar las clases');
+            setClases([]);
         } finally {
             setCargando(false);
         }
     };
 
-    useEffect(() => { cargar(); }, []);
+    useEffect(() => {
+        cargar();
+    }, [soloDisponibles]);
 
     return { clases, cargando, error, recargar: cargar };
 };

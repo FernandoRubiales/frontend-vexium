@@ -2,29 +2,30 @@ import { useState, useEffect } from 'react';
 import type { Reserva } from '../../shared/types';
 import { useReservaApi } from '../api/reservaApi';
 
-export const useReservas = () => {
+export const useMisReservas = () => {
     const [reservas, setReservas] = useState<Reserva[]>([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { obtenerMisReservas, cancelar } = useReservaApi();
+    const { obtenerMisReservas } = useReservaApi();
 
     const cargar = async () => {
         try {
-            const res = await obtenerMisReservas();
-            setReservas(res.data);
-        } catch {
+            setCargando(true);
+            setError(null);
+            const data = await obtenerMisReservas();
+            const lista = (data as any)?.data ? (data as any).data : data;
+            setReservas(Array.isArray(lista) ? lista : []);
+        } catch (e) {
             setError('Error al cargar tus reservas');
+            setReservas([]);
         } finally {
             setCargando(false);
         }
     };
 
-    const cancelarReserva = async (reservaId: number) => {
-        await cancelar(reservaId);
-        await cargar();
-    };
+    useEffect(() => {
+        cargar();
+    }, []);
 
-    useEffect(() => { cargar(); }, []);
-
-    return { reservas, cargando, error, cancelarReserva };
+    return { reservas, cargando, error, recargar: cargar };
 };

@@ -39,14 +39,14 @@ export interface Clase {
     cupoMaximo: number;
     cuposDisponibles: number;
     nombreTipoActividad: string;
-    requiereReserva: boolean;
+
 }
 
 export interface Reserva {
     id: number;
-    fechaHoraReserva: string;
     tipoActividad: string;
     diaSemana: string;
+    fechaClaseReservada: string;
     horaInicio: string;
     horaFin: string;
 }

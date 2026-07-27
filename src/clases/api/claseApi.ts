@@ -8,7 +8,7 @@ export const useClaseApi = () => {
         callApi<Clase[]>('GET', '/clases/disponibles');
 
     const obtenerTodas = () =>
-        callApi<Clase[]>('GET', '/clases');
+        callApi<Clase[]>('GET', '/clases/todas');
 
     return { obtenerDisponiblesHoy, obtenerTodas };
 };
