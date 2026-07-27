@@ -1,22 +1,21 @@
 import Layout from '../../shared/components/Layout';
 import Spinner from '../../shared/components/Spinner';
 import ErrorMessage from '../../shared/components/ErrorMessage';
-import { useMisReservas } from '../hooks/useReservas';
-import { useReservaApi } from '../api/reservaApi';
+import { useReservas } from '../hooks/useReservas';
 import { useState } from 'react';
 
 const MisReservas = () => {
-    const { reservas, cargando, error, recargar } = useMisReservas();
-    const { cancelarReserva } = useReservaApi();
+    const { reservas, cargando, error, anularReserva } = useReservas();
     const [cancelando, setCancelando] = useState<number | null>(null);
     const [mensaje, setMensaje] = useState<string | null>(null);
 
     const handleCancelar = async (reservaId: number) => {
+        if (!confirm('¿Estás seguro de cancelar esta reserva?')) return;
+
         try {
             setCancelando(reservaId);
-            await cancelarReserva(reservaId);
-            setMensaje('Reserva cancelada con éxito.');
-            recargar();
+            await anularReserva(reservaId);
+            setMensaje('Reserva cancelada correctamente');
         } catch (e: any) {
             setMensaje(e.response?.data?.mensaje || 'Error al cancelar la reserva');
         } finally {
@@ -32,7 +31,9 @@ const MisReservas = () => {
             <h1 className="text-2xl font-bold text-gray-800 mb-2">
                 Mis Reservas
             </h1>
-
+            <p className="text-gray-500 text-sm mb-6">
+                Gestioná tus turnos y clases reservadas.
+            </p>
 
             {error && <ErrorMessage mensaje={error} />}
 
@@ -44,7 +45,7 @@ const MisReservas = () => {
 
             {reservas.length === 0 ? (
                 <div className="bg-gray-50 rounded-2xl p-6 text-gray-400 border border-dashed border-gray-200 text-sm">
-                    No tenés ninguna reserva realizada todavía.
+                    No tenés reservas registradas actualmente.
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -58,13 +59,16 @@ const MisReservas = () => {
                                     {reserva.tipoActividad}
                                 </h3>
                                 <p className="text-sm text-gray-500 mt-1">
-                                    Día: {reserva.diaSemana} ({reserva.horaInicio} - {reserva.horaFin})
+                                    Fecha: {reserva.fechaClaseReservada}
+                                </p>
+                                <p className="text-sm text-gray-400 mt-0.5">
+                                    Horario: {reserva.horaInicio} - {reserva.horaFin}
                                 </p>
                             </div>
                             <button
                                 onClick={() => handleCancelar(reserva.id)}
                                 disabled={cancelando === reserva.id}
-                                className="bg-red-50 text-red-600 px-4 py-2 rounded-xl text-sm font-medium hover:bg-red-100 transition disabled:opacity-50 border border-red-200"
+                                className="bg-red-50 text-red-600 border border-red-200 px-4 py-2 rounded-xl text-sm font-medium hover:bg-red-100 transition disabled:opacity-50"
                             >
                                 {cancelando === reserva.id ? 'Cancelando...' : 'Cancelar'}
                             </button>

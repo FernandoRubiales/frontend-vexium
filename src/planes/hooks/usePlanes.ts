@@ -33,11 +33,10 @@ export const usePlanes = () => {
         }
     };
 
-    const contratarPlan = async (planId: number) => {
+    // 1. Crea el SocioPlan en estado "Pendiente" 
+    const seleccionarPlanPendiente = async (planId: number): Promise<number> => {
         try {
             setError(null);
-
-            // 1. Creamos la relación Socio-Plan (POST /socio_plan)
             const resSocioPlan = await elegirPlan(planId);
             const socioPlanData = (resSocioPlan as any)?.data ? (resSocioPlan as any).data : resSocioPlan;
             const socioPlanId = socioPlanData?.id;
@@ -45,21 +44,27 @@ export const usePlanes = () => {
             if (!socioPlanId) {
                 throw new Error('No se pudo obtener el ID del plan del socio creado');
             }
+            return socioPlanId;
+        } catch (err: any) {
+            const mensajeBackend = err.response?.data?.mensaje || err.response?.data?.message || err.message;
+            throw new Error(mensajeBackend);
+        }
+    };
 
-            // 2. Solicitamos el link de pago a Mercado Pago (POST /pagos/checkout/{socioPlanId})
+    // 2. Solicita el link de pago y redirige a Mercado Pago
+    const pagarConMercadoPago = async (socioPlanId: number) => {
+        try {
             const resPago = await iniciarPagoMp(socioPlanId);
             const urlCheckout = (resPago as any)?.data ? (resPago as any).data : resPago;
 
-            // 3. Redirigimos al checkout de Mercado Pago
             if (typeof urlCheckout === 'string' && urlCheckout.startsWith('http')) {
                 window.location.href = urlCheckout;
             } else {
                 throw new Error('La URL de pago devuelta por el servidor es inválida');
             }
         } catch (err: any) {
-            console.error('Error detallado al contratar plan:', err);
             const mensajeBackend = err.response?.data?.mensaje || err.response?.data?.message || err.message;
-            setError(`Error: ${mensajeBackend}`);
+            setError(`Error al iniciar pago: ${mensajeBackend}`);
         }
     };
 
@@ -68,5 +73,5 @@ export const usePlanes = () => {
         cargarMisPlanes();
     }, []);
 
-    return { planes, misPlanes, cargando, error, contratarPlan };
+    return { planes, misPlanes, cargando, error, seleccionarPlanPendiente, pagarConMercadoPago };
 };

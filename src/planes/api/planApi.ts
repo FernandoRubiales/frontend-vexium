@@ -8,7 +8,6 @@ export const usePlanApi = () => {
         callApi<Plan[]>('GET', '/planes');
 
     const elegirPlan = (planId: number) => {
-        console.log("URL que se va a disparar:", '/socio_plan');
         return callApi<SocioPlan>('POST', '/socio_plan', { planId });
     };
 
