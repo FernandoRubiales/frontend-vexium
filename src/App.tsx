@@ -19,6 +19,7 @@ import ClasesDisponibles from './clases/pages/ClasesDisponibles';
 import GestionClases from './clases/pages/GestionClases';
 //Pagina de reservas
 import MisReservas from './reservas/pages/MisReservas';
+import SeleccionarPlan from './planes/pages/SeleccionarPlan';
 
 function App() {
   return (
@@ -64,6 +65,11 @@ function App() {
             <Route path="/socio/mis-reservas" element={
               <ProtectedRoute rolesPermitidos={['SOCIO']}>
                 <MisReservas />
+              </ProtectedRoute>
+            } />
+            <Route path="/socio/mis-planes" element={
+              <ProtectedRoute rolesPermitidos={['SOCIO']}>
+                <SeleccionarPlan />
               </ProtectedRoute>
             } />
 

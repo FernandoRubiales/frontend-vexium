@@ -56,6 +56,7 @@ export interface Pago {
     fechaHoraPago: string;
     metodoPago: string;
     montoPago: number;
+    myPaymentId: string | null;
     nombreSocio: string;
     apellidoSocio: string;
     nombrePlan: string;

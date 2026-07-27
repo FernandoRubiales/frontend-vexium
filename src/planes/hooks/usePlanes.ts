@@ -12,7 +12,7 @@ export const usePlanes = () => {
     const cargarPlanes = async () => {
         try {
             const res = await obtenerTodos();
-            setPlanes(res.data);
+            setPlanes((res as any)?.data ? (res as any).data : res);
         } catch {
             setError('Error al cargar los planes');
         }
@@ -21,7 +21,7 @@ export const usePlanes = () => {
     const cargarMisPlanes = async () => {
         try {
             const res = await obtenerMisPlanes();
-            setMisPlanes(res.data);
+            setMisPlanes((res as any)?.data ? (res as any).data : res);
         } catch (err: any) {
             if (err?.response?.status === 404) {
                 setMisPlanes([]);
@@ -36,23 +36,30 @@ export const usePlanes = () => {
     const contratarPlan = async (planId: number) => {
         try {
             setError(null);
-            // 1. Creamos la relación Socio-Plan
-            const res = await elegirPlan(planId);
-            const socioPlanId = res.data.id;
 
-            // 2. Solicitamos el link de pago a Mercado Pago
-            const urlPago = await iniciarPagoMp(socioPlanId);
+            // 1. Creamos la relación Socio-Plan (POST /socio_plan)
+            const resSocioPlan = await elegirPlan(planId);
+            const socioPlanData = (resSocioPlan as any)?.data ? (resSocioPlan as any).data : resSocioPlan;
+            const socioPlanId = socioPlanData?.id;
 
-            // 3. Redirigimos al checkout utilizando la propiedad .data que trae el string de la URL
-            const urlCheckout = urlPago.data;
-            if (urlCheckout) {
+            if (!socioPlanId) {
+                throw new Error('No se pudo obtener el ID del plan del socio creado');
+            }
+
+            // 2. Solicitamos el link de pago a Mercado Pago (POST /pagos/checkout/{socioPlanId})
+            const resPago = await iniciarPagoMp(socioPlanId);
+            const urlCheckout = (resPago as any)?.data ? (resPago as any).data : resPago;
+
+            // 3. Redirigimos al checkout de Mercado Pago
+            if (typeof urlCheckout === 'string' && urlCheckout.startsWith('http')) {
                 window.location.href = urlCheckout;
             } else {
-                setError('No se pudo obtener la URL de pago');
+                throw new Error('La URL de pago devuelta por el servidor es inválida');
             }
-        } catch (err) {
-            console.error('Error al contratar plan:', err);
-            setError('Error al procesar la contratación y el pago');
+        } catch (err: any) {
+            console.error('Error detallado al contratar plan:', err);
+            const mensajeBackend = err.response?.data?.mensaje || err.response?.data?.message || err.message;
+            setError(`Error: ${mensajeBackend}`);
         }
     };
 

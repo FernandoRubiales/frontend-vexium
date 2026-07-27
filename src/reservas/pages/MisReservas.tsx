@@ -55,7 +55,7 @@ const MisReservas = () => {
                                     Reservado
                                 </span>
                                 <h3 className="font-semibold text-gray-800 mt-2">
-                                    {reserva.tipoActividad || 'Clase de Gimnasio'}
+                                    {reserva.tipoActividad}
                                 </h3>
                                 <p className="text-sm text-gray-500 mt-1">
                                     Día: {reserva.diaSemana} ({reserva.horaInicio} - {reserva.horaFin})
