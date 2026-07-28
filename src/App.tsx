@@ -14,6 +14,7 @@ import RecepcionDashboard from './dashboard/pages/RecepcionDashboard';
 
 //Pagina de mis planes
 import MisPlanes from './planes/pages/MisPlanes';
+import GestionPlanes from './planes/pages/GestionPlanes';
 //Pagina de clases
 import ClasesDisponibles from './clases/pages/ClasesDisponibles';
 import GestionClases from './clases/pages/GestionClases';
@@ -65,6 +66,11 @@ function App() {
             <Route path="/socio/mis-reservas" element={
               <ProtectedRoute rolesPermitidos={['SOCIO']}>
                 <MisReservas />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/planes" element={
+              <ProtectedRoute rolesPermitidos={['ADMIN']}>
+                <GestionPlanes />
               </ProtectedRoute>
             } />
 

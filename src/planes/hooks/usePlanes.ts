@@ -7,7 +7,17 @@ export const usePlanes = () => {
     const [misPlanes, setMisPlanes] = useState<SocioPlan[]>([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { obtenerTodos, elegirPlan, obtenerMisPlanes, iniciarPagoMp } = usePlanApi();
+
+    // Renombramos las funciones que vienen de la API para evitar el bucle infinito
+    const {
+        obtenerTodos,
+        elegirPlan,
+        obtenerMisPlanes,
+        iniciarPagoMp,
+        crearPlan,
+        darDeBajaPlan: darDeBajaPlanApi,
+        actualizarPlan: actualizarPlanApi
+    } = usePlanApi();
 
     const cargarPlanes = async () => {
         try {
@@ -23,17 +33,12 @@ export const usePlanes = () => {
             const res = await obtenerMisPlanes();
             setMisPlanes((res as any)?.data ? (res as any).data : res);
         } catch (err: any) {
-            if (err?.response?.status === 404) {
-                setMisPlanes([]);
-            } else {
-                setError('Error al cargar los planes propios');
-            }
+            setMisPlanes([]);
         } finally {
             setCargando(false);
         }
     };
 
-    // 1. Crea el SocioPlan en estado "Pendiente" 
     const seleccionarPlanPendiente = async (planId: number): Promise<number> => {
         try {
             setError(null);
@@ -51,7 +56,6 @@ export const usePlanes = () => {
         }
     };
 
-    // 2. Solicita el link de pago y redirige a Mercado Pago
     const pagarConMercadoPago = async (socioPlanId: number) => {
         try {
             const resPago = await iniciarPagoMp(socioPlanId);
@@ -68,10 +72,43 @@ export const usePlanes = () => {
         }
     };
 
+    const crearNuevoPlan = async (planRequest: any) => {
+        try {
+            await crearPlan(planRequest);
+            await cargarPlanes();
+        } catch (err: any) {
+            const mensajeBackend = err.response?.data?.mensaje || err.response?.data?.message || 'Error al crear el plan';
+            throw new Error(mensajeBackend);
+        }
+    };
+
+    const darDeBaja = async (id: number) => {
+        try {
+            await darDeBajaPlanApi(id); // <--- Llamamos a la función de la API
+            await cargarPlanes();
+        } catch (err: any) {
+            const mensajeBackend = err.response?.data?.mensaje || err.response?.data?.message || 'No se pudo dar de baja el plan';
+            throw new Error(mensajeBackend);
+        }
+    };
+
+    const actualizar = async (id: number, planRequest: any) => {
+        try {
+            await actualizarPlanApi(id, planRequest); // <--- Llamamos a la función de la API
+            await cargarPlanes();
+        } catch (err: any) {
+            const mensajeBackend = err.response?.data?.mensaje || err.response?.data?.message || 'Error al actualizar el plan';
+            throw new Error(mensajeBackend);
+        }
+    };
+
     useEffect(() => {
         cargarPlanes();
         cargarMisPlanes();
     }, []);
 
-    return { planes, misPlanes, cargando, error, seleccionarPlanPendiente, pagarConMercadoPago };
+    return {
+        planes, misPlanes, cargando, error, seleccionarPlanPendiente, pagarConMercadoPago, crearNuevoPlan,
+        darDeBaja, actualizar, recargarMisPlanes: cargarMisPlanes, recargarPlanes: cargarPlanes
+    };
 };

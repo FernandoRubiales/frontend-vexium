@@ -17,5 +17,14 @@ export const usePlanApi = () => {
     const iniciarPagoMp = (socioPlanId: number) =>
         callApi<string>('POST', `/pagos/checkout/${socioPlanId}`);
 
-    return { obtenerTodos, elegirPlan, obtenerMisPlanes, iniciarPagoMp };
+    const crearPlan = (planRequest: any) =>
+        callApi<Plan>('POST', '/planes', planRequest);
+
+    const darDeBajaPlan = (id: number) =>
+        callApi<void>('DELETE', `/planes/${id}`);
+
+    const actualizarPlan = (id: number, planRequest: any) =>
+        callApi<Plan>('PUT', `/planes/${id}`, planRequest);
+
+    return { obtenerTodos, elegirPlan, obtenerMisPlanes, iniciarPagoMp, crearPlan, darDeBajaPlan, actualizarPlan };
 };

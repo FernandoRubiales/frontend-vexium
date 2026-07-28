@@ -5,7 +5,7 @@ import { usePlanes } from '../hooks/usePlanes';
 import { useState } from 'react';
 
 const MisPlanes = () => {
-    const { planes, misPlanes, cargando, error, seleccionarPlanPendiente, pagarConMercadoPago } = usePlanes();
+    const { planes, misPlanes, cargando, error, seleccionarPlanPendiente, pagarConMercadoPago, recargarMisPlanes } = usePlanes();
     const [procesandoId, setProcesandoId] = useState<number | null>(null);
 
     // Estado para controlar el modal de selección de pago
@@ -30,9 +30,10 @@ const MisPlanes = () => {
         await pagarConMercadoPago(planCreadoId);
     };
 
-    const handlePagarEfectivo = () => {
+    const handlePagarEfectivo = async () => {
         alert(`¡Plan "${nombrePlanSeleccionado}" seleccionado con éxito!\n\nTu plan quedó en estado PENDIENTE. Acercate por la recepción del gimnasio para abonar en efectivo y activarlo.`);
-        window.location.reload(); // Recarga para ver el plan reflejado en pendientes
+        setPlanCreadoId(null); // Cierra el modal
+        await recargarMisPlanes(); // Refresca la lista sin recargar la página ni mandar al login
     };
 
     if (cargando) return <Spinner />;
@@ -45,23 +46,23 @@ const MisPlanes = () => {
 
             {error && <ErrorMessage mensaje={error} />}
 
-            {/* Planes activos o pendientes */}
+            {/* Sección de Planes Activos y Pendientes */}
             <section className="mb-10">
                 <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                    Planes activos
+                    Mis Planes
                 </h2>
 
                 {misPlanes.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {misPlanes.map(sp => (
-                            <div key={sp.id} className="bg-white rounded-2xl p-6 shadow">
+                            <div key={sp.id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                                 <div className="flex justify-between items-start mb-3">
                                     <h3 className="font-semibold text-gray-800">
                                         {sp.nombrePlan}
                                     </h3>
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${sp.estadoSocioPlan === 'Activo'
-                                            ? 'bg-green-100 text-green-700'
-                                            : 'bg-yellow-100 text-yellow-700'
+                                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${sp.estadoSocioPlan === 'Activo'
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-yellow-100 text-yellow-700'
                                         }`}>
                                         {sp.estadoSocioPlan}
                                     </span>
@@ -81,8 +82,8 @@ const MisPlanes = () => {
                         ))}
                     </div>
                 ) : (
-                    <div className="bg-white rounded-2xl p-6 shadow text-gray-500 text-sm border border-gray-100">
-                        No tenés planes activos actualmente. ¡Elegí uno de los planes disponibles abajo para empezar!
+                    <div className="bg-white rounded-2xl p-6 shadow-sm text-gray-500 text-sm border border-gray-100">
+                        No tenés planes activos ni pendientes actualmente. ¡Elegí uno de los planes disponibles abajo para empezar!
                     </div>
                 )}
             </section>
@@ -94,7 +95,7 @@ const MisPlanes = () => {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {planes.map(plan => (
-                        <div key={plan.id} className="bg-white rounded-2xl p-6 shadow flex flex-col">
+                        <div key={plan.id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col">
                             <h3 className="font-semibold text-gray-800 mb-1">
                                 {plan.nombrePlan}
                             </h3>

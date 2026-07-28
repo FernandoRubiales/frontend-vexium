@@ -18,6 +18,14 @@ export interface Plan {
     tipoActividad: string;
 }
 
+export interface PlanRequest {
+    nombrePlan: string;
+    descripcion: string;
+    precio: number;
+    diasPorSemana: number;
+    tipoActividadId: number;
+}
+
 export interface SocioPlan {
     id: number;
     nombreSocio: string;
