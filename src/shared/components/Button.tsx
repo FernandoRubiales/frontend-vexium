@@ -1,37 +1,35 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
-import { Spinner } from './Spinner';
+import React from 'react';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-    children: ReactNode;
-    variant?: 'primary' | 'secondary' | 'danger' | 'outline';
-    isLoading?: boolean;
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+    variant?: 'primary' | 'secondary' | 'danger' | 'success' | 'outline';
+    fullWidth?: boolean;
 }
 
-export const Button = ({
+const Button = ({
     children,
     variant = 'primary',
-    isLoading = false,
+    fullWidth = false,
     className = '',
-    disabled,
     ...props
 }: ButtonProps) => {
-    const baseStyles = "px-4 py-2 rounded font-medium transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm";
+    const baseStyles = "py-2.5 px-4 rounded-xl font-medium transition text-sm flex items-center justify-center space-x-2 shadow-sm disabled:opacity-50 cursor-pointer";
 
     const variants = {
-        primary: "bg-[#00ADB5] hover:bg-[#00939B] text-white",
-        secondary: "bg-gray-200 hover:bg-gray-300 text-gray-800",
-        danger: "bg-red-50 hover:bg-red-100 text-red-600 border border-red-200",
-        outline: "bg-white hover:bg-gray-50 text-gray-700 border border-gray-300"
+        primary: "bg-indigo-600 text-white hover:bg-indigo-700",
+        secondary: "bg-gray-100 text-gray-700 hover:bg-gray-200",
+        danger: "bg-red-50 text-red-600 hover:bg-red-100 border border-red-100",
+        success: "bg-emerald-600 text-white hover:bg-emerald-700",
+        outline: "border border-gray-200 text-gray-600 hover:bg-gray-50 shadow-none"
     };
 
     return (
         <button
-            className={`${baseStyles} ${variants[variant]} ${className}`}
-            disabled={disabled || isLoading}
             {...props}
+            className={`${baseStyles} ${variants[variant]} ${fullWidth ? 'w-full' : ''} ${className}`}
         >
-            {isLoading && <Spinner size="sm" />}
             {children}
         </button>
     );
 };
+
+export default Button;

@@ -52,6 +52,7 @@ export interface Clase {
 
 export interface Reserva {
     id: number;
+    claseId: number;
     tipoActividad: string;
     diaSemana: string;
     fechaClaseReservada: string;

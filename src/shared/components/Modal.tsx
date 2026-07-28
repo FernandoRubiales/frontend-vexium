@@ -2,30 +2,30 @@ import type { ReactNode } from 'react';
 
 interface ModalProps {
     isOpen: boolean;
-    onClose: () => void;
     title: string;
+    onClose: () => void;
     children: ReactNode;
 }
 
-export const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
+const Modal = ({ isOpen, title, onClose, children }: ModalProps) => {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 transition-opacity">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden flex flex-col animate-fadeIn">
-                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                    <h3 className="text-lg font-bold text-gray-800">{title}</h3>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-bold text-gray-800">{title}</h2>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-red-500 transition-colors text-2xl leading-none font-semibold focus:outline-none"
+                        className="text-gray-400 hover:text-gray-600 text-sm font-bold"
                     >
-                        &times;
+                        ✕
                     </button>
                 </div>
-                <div className="p-6 overflow-y-auto max-h-[70vh]">
-                    {children}
-                </div>
+                {children}
             </div>
         </div>
     );
 };
+
+export default Modal;

@@ -1,6 +1,7 @@
 interface ConfirmModalProps {
     isOpen: boolean;
     message?: string;
+    confirmText?: string; // <--- Agregá esta línea
     onConfirm: () => void;
     onClose: () => void;
 }
@@ -8,6 +9,7 @@ interface ConfirmModalProps {
 const ConfirmModal = ({
     isOpen,
     message = '¿Desea dar de baja?',
+    confirmText = 'Confirmar', // <--- Y podés recibirlo acá con valor por defecto
     onConfirm,
     onClose
 }: ConfirmModalProps) => {
@@ -34,7 +36,7 @@ const ConfirmModal = ({
                         onClick={onConfirm}
                         className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-sm transition"
                     >
-                        Confirmar
+                        {confirmText} {/* <--- Y mostrarlo acá dinámicamente */}
                     </button>
                 </div>
             </div>

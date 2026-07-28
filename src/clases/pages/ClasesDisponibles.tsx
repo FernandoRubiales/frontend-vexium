@@ -1,133 +1,213 @@
 import Layout from '../../shared/components/Layout';
 import Spinner from '../../shared/components/Spinner';
 import ErrorMessage from '../../shared/components/ErrorMessage';
+import { Table } from '../../shared/components/Table';
+import Button from '../../shared/components/Button';
+import ConfirmModal from '../../shared/components/ConfirmModal';
+import AlertModal from '../../shared/components/AlertModal';
+import SelectFilter from '../../shared/components/SelectFilter';
 import { useClases } from '../hooks/useClases';
 import { useReservaApi } from '../../reservas/api/reservaApi';
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 
 const ClasesDisponibles = () => {
-    // 1. Instancia para las clases de su plan (true)
-    const {
-        clases: clasesDisponibles,
-        cargando: cargandoDisponibles,
-        error: errorDisponibles,
-        recargar: recargarDisponibles
-    } = useClases(true);
-
-    // 2. Instancia para el cronograma general de la semana (false)
+    // Traemos únicamente el cronograma general de clases
     const {
         clases: clasesTodas,
-        cargando: cargandoTodas,
-        error: errorTodas
+        cargando: cargandoClases,
+        error: errorClases,
+        recargar: recargarClases
     } = useClases(false);
 
-    const { reservar } = useReservaApi();
-    const [reservando, setReservando] = useState<number | null>(null);
-    const [mensaje, setMensaje] = useState<string | null>(null);
+    const { reservar, obtenerMisReservas } = useReservaApi();
 
-    const handleReservar = async (claseId: number) => {
+    // Estados para los modales pop-up
+    const [modalAccionAbierto, setModalAccionAbierto] = useState(false);
+    const [claseSeleccionada, setClaseSeleccionada] = useState<any | null>(null);
+    const [alerta, setAlerta] = useState({ isOpen: false, title: '', message: '' });
+
+    // Estado para guardar los IDs de las clases ya reservadas de forma persistente
+    const [clasesReservadasIds, setClasesReservadasIds] = useState<number[]>([]);
+    const [cargandoReservas, setCargandoReservas] = useState(true);
+
+    // Estados para los filtros generales
+    const [filtroActividad, setFiltroActividad] = useState('');
+    const [filtroDia, setFiltroDia] = useState('');
+
+    // Cargar las reservas activas del socio al entrar a la vista
+    useEffect(() => {
+        const cargarReservasSocio = async () => {
+            try {
+                setCargandoReservas(true);
+                const response = await obtenerMisReservas();
+                const listaReservas = (response as any)?.data ? (response as any).data : response;
+
+                if (Array.isArray(listaReservas)) {
+                    const ids = listaReservas.map((r: any) => r.claseId);
+                    setClasesReservadasIds(ids);
+                }
+            } catch (e) {
+                console.error("Error al cargar las reservas del socio", e);
+            } finally {
+                setCargandoReservas(false);
+            }
+        };
+
+        cargarReservasSocio();
+    }, []);
+
+    // Opciones únicas para el filtro de actividades basadas en el cronograma general
+    const actividadesOptions = useMemo(() => {
+        const unicas = Array.from(new Set(clasesTodas.map((c: any) => c.nombreTipoActividad)));
+        return unicas.map(act => ({ value: act, label: act }));
+    }, [clasesTodas]);
+
+    const diasOptions = [
+        { value: 'Lunes', label: 'Lunes' },
+        { value: 'Martes', label: 'Martes' },
+        { value: 'Miercoles', label: 'Miércoles' },
+        { value: 'Jueves', label: 'Jueves' },
+        { value: 'Viernes', label: 'Viernes' },
+        { value: 'Sabado', label: 'Sábado' },
+        { value: 'Domingo', label: 'Domingo' },
+    ];
+
+    // Clases filtradas según los selectores de actividad y día
+    const clasesFiltradas = useMemo(() => {
+        return clasesTodas.filter((clase: any) => {
+            const cumpleActividad = filtroActividad ? clase.nombreTipoActividad === filtroActividad : true;
+            const cumpleDia = filtroDia ? clase.diaSemana === filtroDia : true;
+            return cumpleActividad && cumpleDia;
+        });
+    }, [clasesTodas, filtroActividad, filtroDia]);
+
+    const abrirModalReservar = (clase: any) => {
+        setClaseSeleccionada(clase);
+        setModalAccionAbierto(true);
+    };
+
+    const ejecutarReserva = async () => {
+        if (!claseSeleccionada) return;
+
+        setModalAccionAbierto(false);
+
         try {
-            setReservando(claseId);
-            await reservar(claseId);
-            setMensaje('¡Reserva realizada con éxito!');
-            recargarDisponibles();
+            await reservar(claseSeleccionada.id);
+
+            // Actualizamos la lista local de ids reservados para reflejar el cambio al instante
+            setClasesReservadasIds(prev => [...prev, claseSeleccionada.id]);
+
+            recargarClases();
+            setClaseSeleccionada(null);
+
+            setAlerta({ isOpen: true, title: 'Éxito', message: '¡Reserva realizada con éxito!' });
         } catch (e: any) {
-            setMensaje(e.response?.data?.mensaje || 'Error al realizar la reserva');
-        } finally {
-            setReservando(null);
-            setTimeout(() => setMensaje(null), 3000);
+            setAlerta({
+                isOpen: true,
+                title: 'Error',
+                message: e.response?.data?.mensaje || 'No se pudo realizar la reserva'
+            });
         }
     };
 
-    if (cargandoDisponibles || cargandoTodas) return <Spinner />;
+    if (cargandoClases || cargandoReservas) return <Spinner />;
+
+    // Columnas unificadas que incluyen la información completa y el botón interactivo de reserva
+    const columnasClases = [
+        {
+            header: 'Actividad',
+            accessor: (clase: any) => <div className="font-semibold text-gray-900">{clase.nombreTipoActividad}</div>
+        },
+        {
+            header: 'Día',
+            accessor: (clase: any) => clase.diaSemana || '-'
+        },
+        {
+            header: 'Horario',
+            accessor: (clase: any) => `${clase.horaInicio} - ${clase.horaFin}`
+        },
+        {
+            header: 'Cupos',
+            accessor: (clase: any) => clase.cupoMaximo ? `${clase.cuposDisponibles ?? '-'} / ${clase.cupoMaximo}` : '-'
+        },
+        {
+            header: 'Acción',
+            className: 'text-right',
+            accessor: (clase: any) => {
+                const yaReservada = clasesReservadasIds.includes(clase.id);
+                return (
+                    <Button
+                        onClick={() => abrirModalReservar(clase)}
+                        disabled={yaReservada}
+                        variant={yaReservada ? 'secondary' : 'success'}
+                        className={`ml-auto text-xs py-1.5 px-3 ${yaReservada ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none' : 'bg-emerald-600 hover:bg-emerald-700'
+                            }`}
+                    >
+                        {yaReservada ? 'Reservado' : 'Reservar'}
+                    </Button>
+                );
+            }
+        }
+    ];
 
     return (
         <Layout>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">
-                Cartelera de Clases
-            </h1>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <h1 className="text-2xl font-bold text-gray-800">
+                    Cartelera de Clases
+                </h1>
 
-
-            {(errorDisponibles || errorTodas) && (
-                <ErrorMessage mensaje="Hubo un error al cargar algunas secciones." />
-            )}
-
-            {mensaje && (
-                <div className="mb-6 px-4 py-3 bg-blue-50 border border-blue-200 text-blue-700 rounded-xl text-sm">
-                    {mensaje}
+                {/* Filtros generales unificados */}
+                <div className="flex space-x-3 w-full md:w-auto">
+                    <SelectFilter
+                        label="Actividad"
+                        value={filtroActividad}
+                        onChange={setFiltroActividad}
+                        options={actividadesOptions}
+                        allLabel="Todas"
+                    />
+                    <SelectFilter
+                        label="Día"
+                        value={filtroDia}
+                        onChange={setFiltroDia}
+                        options={diasOptions}
+                        allLabel="Todos"
+                    />
                 </div>
+            </div>
+
+            {errorClases && (
+                <ErrorMessage mensaje="Hubo un error al cargar el cronograma de clases." />
             )}
 
-            {/* SECCIÓN 1: Clases que puede reservar por su plan */}
-            <div className="mb-10">
-                <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
-                    Disponibles para hoy
-                </h2>
+            {clasesFiltradas.length === 0 ? (
+                <div className="bg-gray-50 rounded-2xl p-6 text-gray-400 border border-dashed border-gray-200 text-sm text-center">
+                    No se encontraron clases con los filtros seleccionados.
+                </div>
+            ) : (
+                <Table
+                    columns={columnasClases}
+                    data={clasesFiltradas}
+                    keyExtractor={clase => clase.id}
+                />
+            )}
 
-                {clasesDisponibles.length === 0 ? (
-                    <div className="bg-gray-50 rounded-2xl p-6 text-gray-400 border border-dashed border-gray-200 text-sm">
-                        No tenés clases disponibles para hoy
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {clasesDisponibles.map(clase => (
-                            <div key={clase.id} className="bg-white rounded-2xl p-6 shadow-sm border border-emerald-100 flex justify-between items-center">
-                                <div>
-                                    <span className="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full">
-                                        Apta para tu plan
-                                    </span>
-                                    <h3 className="font-semibold text-gray-800 mt-2">
-                                        {clase.nombreTipoActividad}
-                                    </h3>
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        {clase.horaInicio} - {clase.horaFin}
-                                    </p>
-                                    <p className="text-sm text-gray-400 mt-0.5">
-                                        Cupos disponibles: {clase.cuposDisponibles} / {clase.cupoMaximo}
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={() => handleReservar(clase.id)}
-                                    disabled={reservando === clase.id}
-                                    className="bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-emerald-700 transition disabled:opacity-50"
-                                >
-                                    {reservando === clase.id ? 'Reservando...' : 'Reservar'}
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+            {/* MODAL DE CONFIRMACIÓN */}
+            <ConfirmModal
+                isOpen={modalAccionAbierto}
+                message={`¿Desea confirmar la reserva para la clase de ${claseSeleccionada?.nombreTipoActividad}?`}
+                confirmText="Sí, reservar"
+                onConfirm={ejecutarReserva}
+                onClose={() => setModalAccionAbierto(false)}
+            />
 
-            {/* SECCIÓN 2: Cronograma general de todas las clases */}
-            <div>
-                <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
-                    Cronograma general
-                </h2>
-
-                {clasesTodas.length === 0 ? (
-                    <p className="text-gray-400">No hay clases registradas en el sistema.</p>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {clasesTodas.map(clase => (
-                            <div key={clase.id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex justify-between items-center">
-                                <div>
-                                    <h3 className="font-semibold text-gray-800">
-                                        {clase.nombreTipoActividad} <span className="text-xs text-gray-400 font-normal">({clase.diaSemana})</span>
-                                    </h3>
-                                    <p className="text-sm text-gray-500 mt-1">
-                                        {clase.horaInicio} - {clase.horaFin}
-                                    </p>
-                                    <p className="text-sm text-gray-400 mt-0.5">
-                                        Cupo máximo: {clase.cupoMaximo}
-                                    </p>
-                                </div>
-
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
+            {/* MODAL DE ALERTAS POP-UP */}
+            <AlertModal
+                isOpen={alerta.isOpen}
+                title={alerta.title}
+                message={alerta.message}
+                onClose={() => setAlerta({ ...alerta, isOpen: false })}
+            />
         </Layout>
     );
 };
