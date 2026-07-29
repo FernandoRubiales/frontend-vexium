@@ -7,11 +7,11 @@ import ConfirmModal from '../../shared/components/ConfirmModal';
 import AlertModal from '../../shared/components/AlertModal';
 import SelectFilter from '../../shared/components/SelectFilter';
 import { useClases } from '../hooks/useClases';
-import { useReservaApi } from '../../reservas/api/reservaApi';
+import { useReservas } from '../../reservas/hooks/useReservas';
 import { useState, useMemo, useEffect } from 'react';
 
 const ClasesDisponibles = () => {
-    // Traemos únicamente el cronograma general de clases
+    // 1. Hook para el cronograma general de clases
     const {
         clases: clasesTodas,
         cargando: cargandoClases,
@@ -19,44 +19,31 @@ const ClasesDisponibles = () => {
         recargar: recargarClases
     } = useClases(false);
 
-    const { reservar, obtenerMisReservas } = useReservaApi();
+    // 2. Hook exclusivo de reservas
+    const {
+        reservas,
+        cargando: cargandoReservas,
+        error: errorReservas,
+        hacerReserva,
+        anularReserva
+    } = useReservas();
 
-    // Estados para los modales pop-up
-    const [modalAccionAbierto, setModalAccionAbierto] = useState(false);
+    // Estados para los modales pop-up y alertas
+    const [modalReservaAbierto, setModalReservaAbierto] = useState(false);
+    const [modalCancelarAbierto, setModalCancelarAbierto] = useState(false);
     const [claseSeleccionada, setClaseSeleccionada] = useState<any | null>(null);
+    const [reservaACancelar, setReservaACancelar] = useState<any | null>(null);
     const [alerta, setAlerta] = useState({ isOpen: false, title: '', message: '' });
 
-    // Estado para guardar los IDs de las clases ya reservadas de forma persistente
-    const [clasesReservadasIds, setClasesReservadasIds] = useState<number[]>([]);
-    const [cargandoReservas, setCargandoReservas] = useState(true);
-
-    // Estados para los filtros generales
+    // Estados para los filtros de la cartelera
     const [filtroActividad, setFiltroActividad] = useState('');
     const [filtroDia, setFiltroDia] = useState('');
 
-    // Cargar las reservas activas del socio al entrar a la vista
-    useEffect(() => {
-        const cargarReservasSocio = async () => {
-            try {
-                setCargandoReservas(true);
-                const response = await obtenerMisReservas();
-                const listaReservas = (response as any)?.data ? (response as any).data : response;
+    // Estados para la paginación de la tabla de clases
+    const [paginaActual, setPaginaActual] = useState(1);
+    const ELEMENTOS_POR_PAGINA = 5;
 
-                if (Array.isArray(listaReservas)) {
-                    const ids = listaReservas.map((r: any) => r.claseId);
-                    setClasesReservadasIds(ids);
-                }
-            } catch (e) {
-                console.error("Error al cargar las reservas del socio", e);
-            } finally {
-                setCargandoReservas(false);
-            }
-        };
-
-        cargarReservasSocio();
-    }, []);
-
-    // Opciones únicas para el filtro de actividades basadas en el cronograma general
+    // Opciones únicas para el filtro de actividades
     const actividadesOptions = useMemo(() => {
         const unicas = Array.from(new Set(clasesTodas.map((c: any) => c.nombreTipoActividad)));
         return unicas.map(act => ({ value: act, label: act }));
@@ -72,7 +59,12 @@ const ClasesDisponibles = () => {
         { value: 'Domingo', label: 'Domingo' },
     ];
 
-    // Clases filtradas según los selectores de actividad y día
+    // IDs de las clases que ya están reservadas para poner el botón en gris ("Reservado")
+    const clasesReservadasIds = useMemo(() => {
+        return reservas.map((r: any) => r.claseId);
+    }, [reservas]);
+
+    // Clases filtradas según los selectores
     const clasesFiltradas = useMemo(() => {
         return clasesTodas.filter((clase: any) => {
             const cumpleActividad = filtroActividad ? clase.nombreTipoActividad === filtroActividad : true;
@@ -81,38 +73,71 @@ const ClasesDisponibles = () => {
         });
     }, [clasesTodas, filtroActividad, filtroDia]);
 
+    // Volver a la página 1 si se cambian los filtros
+    useEffect(() => {
+        setPaginaActual(1);
+    }, [filtroActividad, filtroDia]);
+
+    // Cálculo de la paginación
+    const totalPaginas = Math.ceil(clasesFiltradas.length / ELEMENTOS_POR_PAGINA);
+    const clasesPaginadas = useMemo(() => {
+        const inicio = (paginaActual - 1) * ELEMENTOS_POR_PAGINA;
+        return clasesFiltradas.slice(inicio, inicio + ELEMENTOS_POR_PAGINA);
+    }, [clasesFiltradas, paginaActual]);
+
+    // Manejo de Reserva
     const abrirModalReservar = (clase: any) => {
         setClaseSeleccionada(clase);
-        setModalAccionAbierto(true);
+        setModalReservaAbierto(true);
     };
 
     const ejecutarReserva = async () => {
         if (!claseSeleccionada) return;
-
-        setModalAccionAbierto(false);
+        setModalReservaAbierto(false);
 
         try {
-            await reservar(claseSeleccionada.id);
-
-            // Actualizamos la lista local de ids reservados para reflejar el cambio al instante
-            setClasesReservadasIds(prev => [...prev, claseSeleccionada.id]);
-
+            await hacerReserva(claseSeleccionada.id);
             recargarClases();
             setClaseSeleccionada(null);
-
-            setAlerta({ isOpen: true, title: 'Éxito', message: '¡Reserva realizada con éxito!' });
+            setAlerta({ isOpen: true, title: 'Éxito', message: '¡Clase reservada con éxito!' });
         } catch (e: any) {
+            const mensajeBackend = e.response?.data?.mensaje || e.response?.data?.message || 'No se pudo realizar la reserva';
             setAlerta({
                 isOpen: true,
-                title: 'Error',
-                message: e.response?.data?.mensaje || 'No se pudo realizar la reserva'
+                title: 'Error al reservar',
+                message: mensajeBackend
+            });
+        }
+    };
+
+    // Manejo de Cancelación
+    const abrirModalCancelar = (reserva: any) => {
+        setReservaACancelar(reserva);
+        setModalCancelarAbierto(true);
+    };
+
+    const ejecutarCancelacion = async () => {
+        if (!reservaACancelar) return;
+        setModalCancelarAbierto(false);
+
+        try {
+            await anularReserva(reservaACancelar.id);
+            recargarClases();
+            setReservaACancelar(null);
+            setAlerta({ isOpen: true, title: 'Éxito', message: 'Reserva cancelada correctamente' });
+        } catch (e: any) {
+            const mensajeBackend = e.response?.data?.mensaje || e.response?.data?.message || 'No se pudo cancelar la reserva';
+            setAlerta({
+                isOpen: true,
+                title: 'Error al cancelar',
+                message: mensajeBackend
             });
         }
     };
 
     if (cargandoClases || cargandoReservas) return <Spinner />;
 
-    // Columnas unificadas que incluyen la información completa y el botón interactivo de reserva
+    // Columnas de la Tabla 1: Cartelera General
     const columnasClases = [
         {
             header: 'Actividad',
@@ -150,58 +175,150 @@ const ClasesDisponibles = () => {
         }
     ];
 
+    // Columnas de la Tabla 2: Mis Reservas Activas
+    const columnasReservas = [
+        {
+            header: 'Actividad',
+            accessor: (reserva: any) => <span className="font-semibold text-gray-900">{reserva.tipoActividad}</span>
+        },
+        {
+            header: 'Día',
+            accessor: (reserva: any) => reserva.diaSemana || '-'
+        },
+        {
+            header: 'Horario',
+            accessor: (reserva: any) => `${reserva.horaInicio} - ${reserva.horaFin}`
+        },
+        {
+            header: 'Acción',
+            className: 'text-right',
+            accessor: (reserva: any) => (
+                <Button
+                    onClick={() => abrirModalCancelar(reserva)}
+                    variant="danger"
+                    className="ml-auto text-xs py-1.5 px-3 bg-red-100 text-red-600 hover:bg-red-200 border border-red-200 shadow-none font-medium"
+                >
+                    Cancelar
+                </Button>
+            )
+        }
+    ];
+
     return (
         <Layout>
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                <h1 className="text-2xl font-bold text-gray-800">
-                    Cartelera de Clases
-                </h1>
+            <h1 className="text-2xl font-bold text-gray-800 mb-6">
+                Gestión de Clases y Reservas
+            </h1>
 
-                {/* Filtros generales unificados */}
-                <div className="flex space-x-3 w-full md:w-auto">
-                    <SelectFilter
-                        label="Actividad"
-                        value={filtroActividad}
-                        onChange={setFiltroActividad}
-                        options={actividadesOptions}
-                        allLabel="Todas"
-                    />
-                    <SelectFilter
-                        label="Día"
-                        value={filtroDia}
-                        onChange={setFiltroDia}
-                        options={diasOptions}
-                        allLabel="Todos"
-                    />
+            {(errorClases || errorReservas) && (
+                <ErrorMessage mensaje="Hubo un error al cargar la información." />
+            )}
+
+            {/* SECCIÓN 1: CARTELERA DE CLASES CON FILTROS Y PAGINACIÓN */}
+            <div className="mb-12">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+                    <h2 className="text-xl font-semibold text-gray-800">
+                        Cartelera de Clases
+                    </h2>
+
+                    <div className="flex space-x-3 w-full md:w-auto">
+                        <SelectFilter
+                            label="Actividad"
+                            value={filtroActividad}
+                            onChange={setFiltroActividad}
+                            options={actividadesOptions}
+                            allLabel="Todas"
+                        />
+                        <SelectFilter
+                            label="Día"
+                            value={filtroDia}
+                            onChange={setFiltroDia}
+                            options={diasOptions}
+                            allLabel="Todos"
+                        />
+                    </div>
                 </div>
+
+                {clasesFiltradas.length === 0 ? (
+                    <div className="bg-gray-50 rounded-2xl p-6 text-gray-400 border border-dashed border-gray-200 text-sm text-center">
+                        No se encontraron clases con los filtros seleccionados.
+                    </div>
+                ) : (
+                    <>
+                        <Table
+                            columns={columnasClases}
+                            data={clasesPaginadas}
+                            keyExtractor={clase => clase.id}
+                        />
+
+                        {/* CONTROLES DE PAGINACIÓN CON HTML NATIVO (GRIS Y VISIBLE) */}
+                        {totalPaginas > 1 && (
+                            <div className="flex justify-between items-center mt-4 px-2 text-sm text-gray-500">
+                                <span>Página <strong className="text-gray-700">{paginaActual}</strong> de <strong className="text-gray-700">{totalPaginas}</strong></span>
+                                <div className="flex space-x-2">
+                                    <button
+                                        onClick={() => setPaginaActual(p => Math.max(p - 1, 1))}
+                                        disabled={paginaActual === 1}
+                                        className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed shadow-sm transition flex items-center justify-center cursor-pointer"
+                                        title="Anterior"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        onClick={() => setPaginaActual(p => Math.min(p + 1, totalPaginas))}
+                                        disabled={paginaActual === totalPaginas}
+                                        className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed shadow-sm transition flex items-center justify-center cursor-pointer"
+                                        title="Siguiente"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
 
-            {errorClases && (
-                <ErrorMessage mensaje="Hubo un error al cargar el cronograma de clases." />
-            )}
+            {/* SECCIÓN 2: MIS RESERVAS */}
+            <div>
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                    Mis Reservas
+                </h2>
 
-            {clasesFiltradas.length === 0 ? (
-                <div className="bg-gray-50 rounded-2xl p-6 text-gray-400 border border-dashed border-gray-200 text-sm text-center">
-                    No se encontraron clases con los filtros seleccionados.
-                </div>
-            ) : (
-                <Table
-                    columns={columnasClases}
-                    data={clasesFiltradas}
-                    keyExtractor={clase => clase.id}
-                />
-            )}
+                {reservas.length === 0 ? (
+                    <div className="bg-gray-50 rounded-2xl p-6 text-gray-400 border border-dashed border-gray-200 text-sm text-center">
+                        Aún no tenés ninguna reserva realizada.
+                    </div>
+                ) : (
+                    <Table
+                        columns={columnasReservas}
+                        data={reservas}
+                        keyExtractor={reserva => reserva.id}
+                    />
+                )}
+            </div>
 
-            {/* MODAL DE CONFIRMACIÓN */}
+            {/* MODALES Y ALERTAS PERSONALIZADAS */}
             <ConfirmModal
-                isOpen={modalAccionAbierto}
+                isOpen={modalReservaAbierto}
                 message={`¿Desea confirmar la reserva para la clase de ${claseSeleccionada?.nombreTipoActividad}?`}
                 confirmText="Sí, reservar"
                 onConfirm={ejecutarReserva}
-                onClose={() => setModalAccionAbierto(false)}
+                onClose={() => setModalReservaAbierto(false)}
             />
 
-            {/* MODAL DE ALERTAS POP-UP */}
+            <ConfirmModal
+                isOpen={modalCancelarAbierto}
+                message={`¿Desea cancelar su reserva para la clase de ${reservaACancelar?.tipoActividad}?`}
+                confirmText="Sí, cancelar"
+                onConfirm={ejecutarCancelacion}
+                onClose={() => setModalCancelarAbierto(false)}
+            />
+
             <AlertModal
                 isOpen={alerta.isOpen}
                 title={alerta.title}

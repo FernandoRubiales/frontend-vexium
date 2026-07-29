@@ -22,28 +22,15 @@ export const useReservas = () => {
     };
 
     const hacerReserva = async (claseId: number) => {
-        try {
-            setError(null);
-            await reservar(claseId);
-            await cargarReservas();
-            alert('¡Clase reservada con éxito!');
-        } catch (err: any) {
-            const mensajeBackend = err.response?.data?.mensaje || err.response?.data?.message || err.message;
-            alert(`Error al reservar: ${mensajeBackend}`);
-        }
+        setError(null);
+        await reservar(claseId);
+        await cargarReservas();
     };
 
     const anularReserva = async (reservaId: number) => {
-        if (!confirm('¿Estás seguro de cancelar esta reserva?')) return;
-        try {
-            setError(null);
-            await cancelarReserva(reservaId);
-            await cargarReservas();
-            alert('Reserva cancelada correctamente');
-        } catch (err: any) {
-            const mensajeBackend = err.response?.data?.mensaje || err.response?.data?.message || err.message;
-            alert(`Error al cancelar: ${mensajeBackend}`);
-        }
+        setError(null);
+        await cancelarReserva(reservaId);
+        await cargarReservas();
     };
 
     useEffect(() => {
