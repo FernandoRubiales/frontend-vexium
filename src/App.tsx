@@ -18,7 +18,8 @@ import GestionPlanes from './planes/pages/GestionPlanes';
 //Pagina de clases
 import ClasesDisponibles from './clases/pages/ClasesDisponibles';
 import GestionClases from './clases/pages/GestionClases';
-//Pagina de reservas
+//Pagina de pagos
+import HistorialPagos from './pagos/pages/HistorialPagos';
 
 
 
@@ -56,6 +57,11 @@ function App() {
             <Route path="/socio/clases" element={
               <ProtectedRoute rolesPermitidos={['SOCIO']}>
                 <ClasesDisponibles />
+              </ProtectedRoute>
+            } />
+            <Route path="/socio/pagos" element={
+              <ProtectedRoute rolesPermitidos={['SOCIO']}>
+                <HistorialPagos />
               </ProtectedRoute>
             } />
             <Route path="/admin/clases" element={

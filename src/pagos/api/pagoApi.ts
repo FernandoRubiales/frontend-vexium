@@ -10,5 +10,9 @@ export const usePagoApi = () => {
     const registrarPagoEfectivo = (socioPlanId: number, montoPago: number) =>
         callApi('POST', '/pagos/efectivo', { socioPlanId, montoPago });
 
-    return { buscarPlanesPendientesPorDni, registrarPagoEfectivo };
+
+    const obtenerMisPagos = () =>
+        callApi<any[]>('GET', '/pagos/mis-pagos');
+
+    return { buscarPlanesPendientesPorDni, registrarPagoEfectivo, obtenerMisPagos };
 };

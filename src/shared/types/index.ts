@@ -18,6 +18,13 @@ export interface Plan {
     tipoActividad: string;
 }
 
+export interface TipoActividad {
+    id: number;
+    nombreTipoActividad: string;
+    descripcion: string;
+    requiereReserva: boolean;
+}
+
 export interface PlanRequest {
     nombrePlan: string;
     descripcion: string;

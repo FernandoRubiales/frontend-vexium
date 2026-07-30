@@ -1,4 +1,5 @@
 import { usePlanes } from '../hooks/usePlanes';
+import { useTipoActividad } from '../../actividades/hooks/useTipoActividad';
 import Layout from '../../shared/components/Layout';
 import Spinner from '../../shared/components/Spinner';
 import ErrorMessage from '../../shared/components/ErrorMessage';
@@ -10,6 +11,8 @@ import type { Plan } from '../../shared/types';
 
 const AdminPlanesPage = () => {
     const { planes, cargando, error, crearNuevoPlan, actualizar, darDeBaja } = usePlanes();
+    const { tiposActividad } = useTipoActividad();
+
     const [modalAbierto, setModalAbierto] = useState(false);
     const [planEditandoId, setPlanEditandoId] = useState<number | null>(null);
 
@@ -37,7 +40,7 @@ const AdminPlanesPage = () => {
             descripcion: plan.descripcion,
             precio: plan.precio.toString(),
             diasPorSemana: plan.diasPorSemana.toString(),
-            tipoActividadId: (plan as any).tipoActividadId || ''
+            tipoActividadId: (plan as any).tipoActividadId?.toString() || ''
         });
         setModalAbierto(true);
     };
@@ -56,12 +59,18 @@ const AdminPlanesPage = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            // Validamos que se haya seleccionado un tipo de actividad obligatoriamente
+            if (!formulario.tipoActividadId) {
+                alert('Por favor, seleccioná un tipo de actividad.');
+                return;
+            }
+
             const dataRequest = {
                 nombrePlan: formulario.nombrePlan,
                 descripcion: formulario.descripcion,
                 precio: Number(formulario.precio),
                 diasPorSemana: Number(formulario.diasPorSemana),
-                tipoActividadId: Number(formulario.tipoActividadId)
+                tipoActividadId: Number(formulario.tipoActividadId) // Convertido explícitamente a número
             };
 
             if (planEditandoId !== null) {
@@ -77,7 +86,6 @@ const AdminPlanesPage = () => {
 
     if (cargando) return <Spinner />;
 
-    // Definición de columnas para la tabla genérica
     const columnas = [
         {
             header: 'Nombre',
@@ -136,10 +144,8 @@ const AdminPlanesPage = () => {
 
             {error && <ErrorMessage mensaje={error} />}
 
-            {/* Uso de la Tabla Genérica */}
             <Table columns={columnas} data={planes} keyExtractor={plan => plan.id} />
 
-            {/* Uso del Modal Genérico */}
             <Modal
                 isOpen={modalAbierto}
                 title={planEditandoId !== null ? 'Editar Plan' : 'Crear Nuevo Plan'}
@@ -189,14 +195,20 @@ const AdminPlanesPage = () => {
                         </div>
                     </div>
                     <div>
-                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">ID Tipo Actividad</label>
-                        <input
-                            type="number"
+                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Tipo de Actividad</label>
+                        <select
                             required
-                            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-white"
                             value={formulario.tipoActividadId}
                             onChange={e => setFormulario({ ...formulario, tipoActividadId: e.target.value })}
-                        />
+                        >
+                            <option value="">Seleccione un tipo de actividad...</option>
+                            {tiposActividad.map(act => (
+                                <option key={act.id} value={act.id}>
+                                    {act.nombreTipoActividad}
+                                </option>
+                            ))}
+                        </select>
                     </div>
                     <div className="flex justify-end space-x-2 pt-2">
                         <button
@@ -216,7 +228,6 @@ const AdminPlanesPage = () => {
                 </form>
             </Modal>
 
-            {/* Modal de confirmación de baja reutilizado */}
             <ConfirmModal
                 isOpen={modalBajaAbierto}
                 message="¿Desea dar de baja?"
