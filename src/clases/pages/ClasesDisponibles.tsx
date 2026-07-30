@@ -8,7 +8,29 @@ import AlertModal from '../../shared/components/AlertModal';
 import SelectFilter from '../../shared/components/SelectFilter';
 import { useClases } from '../hooks/useClases';
 import { useReservas } from '../../reservas/hooks/useReservas';
+import { usePlanes } from '../../planes/hooks/usePlanes'; // <-- Usamos tu hook real
 import { useState, useMemo, useEffect } from 'react';
+
+// Helpers auxiliares para convertir días a números y validar fechas
+const obtenerNumeroDia = (dia: string): number => {
+    const diasMap: Record<string, number> = {
+        'Lunes': 1,
+        'Martes': 2,
+        'Miercoles': 3,
+        'Jueves': 4,
+        'Viernes': 5,
+        'Sabado': 6,
+        'Sábado': 6,
+        'Domingo': 7
+    };
+    const diaFormateado = dia ? dia.charAt(0).toUpperCase() + dia.slice(1).toLowerCase() : '';
+    return diasMap[diaFormateado] || 0;
+};
+
+const getDiaActualNumero = (): number => {
+    const jsDay = new Date().getDay(); // 0 (Domingo) a 6 (Sábado)
+    return jsDay === 0 ? 7 : jsDay;    // Ajustamos para que Domingo sea 7
+};
 
 const ClasesDisponibles = () => {
     // 1. Hook para el cronograma general de clases
@@ -27,6 +49,9 @@ const ClasesDisponibles = () => {
         hacerReserva,
         anularReserva
     } = useReservas();
+
+    // 3. Hook de planes para obtener los planes del socio (misPlanes)
+    const { misPlanes, cargando: cargandoPlanes } = usePlanes();
 
     // Estados para los modales pop-up y alertas
     const [modalReservaAbierto, setModalReservaAbierto] = useState(false);
@@ -59,7 +84,7 @@ const ClasesDisponibles = () => {
         { value: 'Domingo', label: 'Domingo' },
     ];
 
-    // IDs de las clases que ya están reservadas para poner el botón en gris ("Reservado")
+    // IDs de las clases que ya están reservadas
     const clasesReservadasIds = useMemo(() => {
         return reservas.map((r: any) => r.claseId);
     }, [reservas]);
@@ -135,7 +160,7 @@ const ClasesDisponibles = () => {
         }
     };
 
-    if (cargandoClases || cargandoReservas) return <Spinner />;
+    if (cargandoClases || cargandoReservas || cargandoPlanes) return <Spinner />;
 
     // Columnas de la Tabla 1: Cartelera General
     const columnasClases = [
@@ -160,15 +185,44 @@ const ClasesDisponibles = () => {
             className: 'text-right',
             accessor: (clase: any) => {
                 const yaReservada = clasesReservadasIds.includes(clase.id);
+
+                // 1. Validación de fecha y hora
+                const diaActualNum = getDiaActualNumero();
+                const horaActualStr = new Date().toTimeString().slice(0, 5);
+                const diaClaseNum = obtenerNumeroDia(clase.diaSemana);
+                const esClasePasada = diaClaseNum < diaActualNum || (diaClaseNum === diaActualNum && horaActualStr > clase.horaInicio);
+
+                // 2. Validación de cupos
+                const sinCupos = clase.cuposDisponibles !== undefined && clase.cuposDisponibles <= 0;
+
+                // 3. Validación de plan activo para esta actividad usando misPlanes
+                const planActivoParaActividad = misPlanes?.find((p: any) =>
+                    p.tipoActividad === clase.nombreTipoActividad &&
+                    p.estadoSocioPlan === 'Activo' &&
+                    p.clasesDisponibles > 0
+                );
+                const noTienePlan = !planActivoParaActividad;
+
+                // Deshabilitar si ya reservó, si la clase pasó, si no hay cupos o si no tiene plan activo
+                const estaDeshabilitado = yaReservada || esClasePasada || sinCupos || noTienePlan;
+
+                let textoBoton = 'Reservar';
+                if (yaReservada) textoBoton = 'Reservado';
+                else if (esClasePasada) textoBoton = 'No disponible';
+                else if (sinCupos) textoBoton = 'Sin cupos';
+                else if (noTienePlan) textoBoton = 'No disponible';
+
                 return (
                     <Button
                         onClick={() => abrirModalReservar(clase)}
-                        disabled={yaReservada}
-                        variant={yaReservada ? 'secondary' : 'success'}
-                        className={`ml-auto text-xs py-1.5 px-3 ${yaReservada ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none' : 'bg-emerald-600 hover:bg-emerald-700'
+                        disabled={estaDeshabilitado}
+                        variant={estaDeshabilitado ? 'secondary' : 'success'}
+                        className={`ml-auto text-xs py-1.5 px-3 ${estaDeshabilitado
+                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
+                            : 'bg-emerald-600 hover:bg-emerald-700'
                             }`}
                     >
-                        {yaReservada ? 'Reservado' : 'Reservar'}
+                        {textoBoton}
                     </Button>
                 );
             }
@@ -251,7 +305,6 @@ const ClasesDisponibles = () => {
                             keyExtractor={clase => clase.id}
                         />
 
-                        {/* CONTROLES DE PAGINACIÓN CON HTML NATIVO (GRIS Y VISIBLE) */}
                         {totalPaginas > 1 && (
                             <div className="flex justify-between items-center mt-4 px-2 text-sm text-gray-500">
                                 <span>Página <strong className="text-gray-700">{paginaActual}</strong> de <strong className="text-gray-700">{totalPaginas}</strong></span>
@@ -302,7 +355,7 @@ const ClasesDisponibles = () => {
                 )}
             </div>
 
-            {/* MODALES Y ALERTAS PERSONALIZADAS */}
+            {/* MODALES Y ALERTAS */}
             <ConfirmModal
                 isOpen={modalReservaAbierto}
                 message={`¿Desea confirmar la reserva para la clase de ${claseSeleccionada?.nombreTipoActividad}?`}

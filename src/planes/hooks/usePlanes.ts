@@ -8,7 +8,6 @@ export const usePlanes = () => {
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Renombramos las funciones que vienen de la API para evitar el bucle infinito
     const {
         obtenerTodos,
         elegirPlan,
@@ -84,7 +83,7 @@ export const usePlanes = () => {
 
     const darDeBaja = async (id: number) => {
         try {
-            await darDeBajaPlanApi(id); // <--- Llamamos a la función de la API
+            await darDeBajaPlanApi(id);
             await cargarPlanes();
         } catch (err: any) {
             const mensajeBackend = err.response?.data?.mensaje || err.response?.data?.message || 'No se pudo dar de baja el plan';
@@ -94,7 +93,7 @@ export const usePlanes = () => {
 
     const actualizar = async (id: number, planRequest: any) => {
         try {
-            await actualizarPlanApi(id, planRequest); // <--- Llamamos a la función de la API
+            await actualizarPlanApi(id, planRequest);
             await cargarPlanes();
         } catch (err: any) {
             const mensajeBackend = err.response?.data?.mensaje || err.response?.data?.message || 'Error al actualizar el plan';
@@ -108,7 +107,16 @@ export const usePlanes = () => {
     }, []);
 
     return {
-        planes, misPlanes, cargando, error, seleccionarPlanPendiente, pagarConMercadoPago, crearNuevoPlan,
-        darDeBaja, actualizar, recargarMisPlanes: cargarMisPlanes, recargarPlanes: cargarPlanes
+        planes,
+        misPlanes,
+        cargando,
+        error,
+        seleccionarPlanPendiente,
+        pagarConMercadoPago,
+        crearNuevoPlan,
+        darDeBaja,
+        actualizar,
+        recargarMisPlanes: cargarMisPlanes,
+        recargarPlanes: cargarPlanes
     };
 };
