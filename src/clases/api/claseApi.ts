@@ -10,5 +10,20 @@ export const useClaseApi = () => {
     const obtenerTodas = () =>
         callApi<Clase[]>('GET', '/clases/todas');
 
-    return { obtenerDisponiblesHoy, obtenerTodas };
+    const crearClase = (data: any) =>
+        callApi<Clase>('POST', '/clases', data);
+
+    const actualizarClase = (id: number, data: any) =>
+        callApi<Clase>('PUT', `/clases/${id}`, data);
+
+    const darDeBajaClase = (id: number) =>
+        callApi<void>('DELETE', `/clases/${id}`);
+
+    return {
+        obtenerDisponiblesHoy,
+        obtenerTodas,
+        crearClase,
+        actualizarClase,
+        darDeBajaClase
+    };
 };

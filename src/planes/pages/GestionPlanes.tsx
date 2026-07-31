@@ -59,7 +59,6 @@ const AdminPlanesPage = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            // Validamos que se haya seleccionado un tipo de actividad obligatoriamente
             if (!formulario.tipoActividadId) {
                 alert('Por favor, seleccioná un tipo de actividad.');
                 return;
@@ -70,7 +69,7 @@ const AdminPlanesPage = () => {
                 descripcion: formulario.descripcion,
                 precio: Number(formulario.precio),
                 diasPorSemana: Number(formulario.diasPorSemana),
-                tipoActividadId: Number(formulario.tipoActividadId) // Convertido explícitamente a número
+                tipoActividadId: Number(formulario.tipoActividadId)
             };
 
             if (planEditandoId !== null) {
@@ -95,12 +94,20 @@ const AdminPlanesPage = () => {
         },
         { header: 'Descripción', accessor: 'descripcion' as keyof Plan },
         {
+            header: 'Actividad', // Nueva columna para ver el tipo de actividad
+            accessor: (plan: Plan) => (
+                <span className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full text-xs font-medium">
+                    {plan.tipoActividad}
+                </span>
+            )
+        },
+        {
             header: 'Precio',
             accessor: (plan: Plan) => `$${plan.precio.toLocaleString('es-AR')}`
         },
         {
-            header: 'Días / Clases',
-            accessor: (plan: Plan) => `${plan.diasPorSemana} días (${plan.clasesIncluidas} clases)`
+            header: 'Días',
+            accessor: (plan: Plan) => `${plan.diasPorSemana} días`
         },
         {
             header: 'Acciones',

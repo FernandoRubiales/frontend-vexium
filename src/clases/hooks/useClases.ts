@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import type { Clase } from '../../shared/types';
 import { useClaseApi } from '../api/claseApi';
 
-export const useClases = (soloDisponibles = true) => {
+export const useClases = (soloDisponibles = false) => {
     const [clases, setClases] = useState<Clase[]>([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { obtenerDisponiblesHoy, obtenerTodas } = useClaseApi();
+    const { obtenerDisponiblesHoy, obtenerTodas, crearClase, actualizarClase, darDeBajaClase } = useClaseApi();
 
     const cargar = async () => {
         try {
@@ -31,5 +31,28 @@ export const useClases = (soloDisponibles = true) => {
         cargar();
     }, [soloDisponibles]);
 
-    return { clases, cargando, error, recargar: cargar };
+    const crear = async (formData: any) => {
+        await crearClase(formData);
+        await cargar();
+    };
+
+    const actualizar = async (id: number, formData: any) => {
+        await actualizarClase(id, formData);
+        await cargar();
+    };
+
+    const darDeBaja = async (id: number) => {
+        await darDeBajaClase(id);
+        await cargar();
+    };
+
+    return {
+        clases,
+        cargando,
+        error,
+        recargar: cargar,
+        crearClase: crear,
+        actualizarClase: actualizar,
+        darDeBajaClase: darDeBaja
+    };
 };
