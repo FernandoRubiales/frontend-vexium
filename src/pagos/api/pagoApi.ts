@@ -10,9 +10,12 @@ export const usePagoApi = () => {
     const registrarPagoEfectivo = (socioPlanId: number, montoPago: number) =>
         callApi('POST', '/pagos/efectivo', { socioPlanId, montoPago });
 
-
     const obtenerMisPagos = () =>
         callApi<any[]>('GET', '/pagos/mis-pagos');
 
-    return { buscarPlanesPendientesPorDni, registrarPagoEfectivo, obtenerMisPagos };
+
+    const obtenerTodosLosPagos = (page = 0, size = 10) =>
+        callApi<any>('GET', `/pagos/todos?page=${page}&size=${size}`);
+
+    return { buscarPlanesPendientesPorDni, registrarPagoEfectivo, obtenerMisPagos, obtenerTodosLosPagos };
 };

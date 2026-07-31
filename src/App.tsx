@@ -20,6 +20,10 @@ import ClasesDisponibles from './clases/pages/ClasesDisponibles';
 import GestionClases from './clases/pages/GestionClases';
 //Pagina de pagos
 import HistorialPagos from './pagos/pages/HistorialPagos';
+import GestionPagos from './pagos/pages/GestionPagos';
+//Pagina de actividades
+import GestionTipoActividad from './actividades/pages/GestionTipoActividad';
+
 
 
 
@@ -72,6 +76,16 @@ function App() {
             <Route path="/admin/planes" element={
               <ProtectedRoute rolesPermitidos={['ADMIN']}>
                 <GestionPlanes />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/actividades" element={
+              <ProtectedRoute rolesPermitidos={['ADMIN']}>
+                <GestionTipoActividad />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/pagos" element={
+              <ProtectedRoute rolesPermitidos={['ADMIN']}>
+                <GestionPagos />
               </ProtectedRoute>
             } />
 

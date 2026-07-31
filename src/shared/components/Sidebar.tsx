@@ -19,6 +19,8 @@ const navItemsAdmin: NavItem[] = [
     { label: 'Socios', path: '/admin/socios' },
     { label: 'Planes', path: '/admin/planes' },
     { label: 'Clases', path: '/admin/clases' },
+    { label: 'Actividades', path: '/admin/actividades' },
+    { label: 'Pagos', path: '/admin/pagos' },
 ];
 
 const navItemsRecepcion: NavItem[] = [

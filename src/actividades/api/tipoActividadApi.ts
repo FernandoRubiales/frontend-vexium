@@ -6,5 +6,14 @@ export const useTipoActividadApi = () => {
     const obtenerTodas = () =>
         callApi<any[]>('GET', '/tipo-actividad');
 
-    return { obtenerTodas };
+    const crearActividad = (data: any) =>
+        callApi<any>('POST', '/tipo-actividad', data);
+
+    const actualizarActividad = (id: number, data: any) =>
+        callApi<any>('PUT', `/tipo-actividad/${id}`, data);
+
+    const darDeBajaActividad = (id: number) =>
+        callApi<void>('DELETE', `/tipo-actividad/${id}`);
+
+    return { obtenerTodas, crearActividad, actualizarActividad, darDeBajaActividad };
 };
