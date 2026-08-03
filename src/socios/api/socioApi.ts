@@ -7,8 +7,17 @@ export const useSocioApi = () => {
     const obtenerTodos = () =>
         callApi<Socio[]>('GET', '/socios');
 
-    const cambiarRol = (id: number, rol: string) =>
-        callApi<void>('PATCH', `/socios/${id}/rol?rol=${rol}`);
+    const crearSocio = (data: any) =>
+        callApi<Socio>('POST', '/socios/create', data);
 
-    return { obtenerTodos, cambiarRol };
+    const actualizarSocio = (id: number, data: any) =>
+        callApi<Socio>('PUT', `/socios/${id}`, data);
+
+    const cambiarRol = (id: number, nuevoRol: string) =>
+        callApi<void>('PATCH', `/socios/${id}/cambiar-rol?nuevoRol=${nuevoRol}`);
+
+    const eliminarSocio = (id: number) =>
+        callApi<void>('DELETE', `/socios/${id}`);
+
+    return { obtenerTodos, crearSocio, actualizarSocio, cambiarRol, eliminarSocio };
 };

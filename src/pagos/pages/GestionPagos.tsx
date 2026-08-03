@@ -9,12 +9,13 @@ const GestionPagos = () => {
 
     if (cargando) return <Spinner />;
 
+    // Definición de columnas con el nombre del socio corregido y solo formato de fecha
     const columnas = [
         {
             header: 'Socio',
             accessor: (pago: any) => (
                 <span className="font-semibold text-gray-900">
-                    {pago.nombreSocio} {pago.apellidoSocio}
+                    {pago.nombreSocio || pago.nombre || 'Sin nombre'} {pago.apellidoSocio || pago.apellido || ''}
                 </span>
             )
         },
@@ -34,24 +35,22 @@ const GestionPagos = () => {
             header: 'Método',
             accessor: (pago: any) => (
                 <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${pago.metodoAbonado === 'Efectivo'
-                    ? 'bg-amber-50 text-amber-700'
-                    : 'bg-blue-50 text-blue-700'
+                        ? 'bg-amber-50 text-amber-700'
+                        : 'bg-blue-50 text-blue-700'
                     }`}>
                     {pago.metodoAbonado}
                 </span>
             )
         },
         {
-            header: 'Fecha y Hora',
+            header: 'Fecha de Pago',
             accessor: (pago: any) => (
                 <span className="text-gray-500 text-xs">
-                    {new Date(pago.fechaHoraPago).toLocaleString('es-AR', {
+                    {pago.fechaHoraPago ? new Date(pago.fechaHoraPago).toLocaleDateString('es-AR', {
                         day: '2-digit',
                         month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                    })}
+                        year: 'numeric'
+                    }) : '-'}
                 </span>
             )
         }

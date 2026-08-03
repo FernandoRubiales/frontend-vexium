@@ -76,6 +76,7 @@ export interface Pago {
     nombreSocio: string;
     apellidoSocio: string;
     nombrePlan: string;
+    metodoAbonado: string;
 }
 
 export interface ApiError {

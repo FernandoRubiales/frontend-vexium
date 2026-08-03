@@ -6,26 +6,54 @@ export const useSocios = () => {
     const [socios, setSocios] = useState<Socio[]>([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { obtenerTodos, cambiarRol } = useSocioApi();
+    const { obtenerTodos, crearSocio, actualizarSocio, cambiarRol, eliminarSocio } = useSocioApi();
 
     const cargar = async () => {
         try {
             setCargando(true);
+            setError(null);
             const res = await obtenerTodos();
-            setSocios(res.data);
-        } catch {
-            setError('Error al cargar los socios');
+            const lista = (res as any)?.data ? (res as any).data : res;
+            setSocios(Array.isArray(lista) ? lista : []);
+        } catch (err: any) {
+            setError(err.message || 'Error al cargar los socios');
         } finally {
             setCargando(false);
         }
     };
 
-    const actualizarRol = async (id: number, rol: string) => {
-        await cambiarRol(id, rol);
+    const crear = async (formData: any) => {
+        await crearSocio(formData);
         await cargar();
     };
 
-    useEffect(() => { cargar(); }, []);
+    const actualizar = async (id: number, formData: any) => {
+        await actualizarSocio(id, formData);
+        await cargar();
+    };
 
-    return { socios, cargando, error, actualizarRol };
+    const actualizarRol = async (id: number, nuevoRol: string) => {
+        await cambiarRol(id, nuevoRol);
+        await cargar();
+    };
+
+    const eliminar = async (id: number) => {
+        await eliminarSocio(id);
+        await cargar();
+    };
+
+    useEffect(() => {
+        cargar();
+    }, []);
+
+    return {
+        socios,
+        cargando,
+        error,
+        crearSocio: crear,
+        actualizarSocio: actualizar,
+        actualizarRol,
+        eliminarSocio: eliminar,
+        recargarSocios: cargar
+    };
 };

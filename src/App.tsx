@@ -23,7 +23,8 @@ import HistorialPagos from './pagos/pages/HistorialPagos';
 import GestionPagos from './pagos/pages/GestionPagos';
 //Pagina de actividades
 import GestionTipoActividad from './actividades/pages/GestionTipoActividad';
-
+//Pagina de socios
+import GestionSocios from './socios/pages/GestionSocios';
 
 
 
@@ -86,6 +87,11 @@ function App() {
             <Route path="/admin/pagos" element={
               <ProtectedRoute rolesPermitidos={['ADMIN']}>
                 <GestionPagos />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/socios" element={
+              <ProtectedRoute rolesPermitidos={['ADMIN']}>
+                <GestionSocios />
               </ProtectedRoute>
             } />
 
