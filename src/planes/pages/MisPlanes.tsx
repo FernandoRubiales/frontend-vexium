@@ -84,8 +84,8 @@ const MisPlanes = () => {
                                         {sp.nombrePlan}
                                     </h3>
                                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${sp.estadoSocioPlan === 'Activo'
-                                            ? 'bg-green-100 text-green-700'
-                                            : 'bg-yellow-100 text-yellow-700'
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-yellow-100 text-yellow-700'
                                         }`}>
                                         {sp.estadoSocioPlan}
                                     </span>
@@ -126,7 +126,7 @@ const MisPlanes = () => {
                                 {plan.tipoActividad}
                             </p>
                             <p className="text-sm text-gray-500 mb-1">
-                                {plan.diasPorSemana} días/semana · {plan.clasesIncluidas} clases/mes
+                                {plan.diasPorSemana} días/semana
                             </p>
                             <p className="text-xl font-bold text-blue-600 mt-2 mb-4">
                                 ${plan.precio.toLocaleString('es-AR')}
