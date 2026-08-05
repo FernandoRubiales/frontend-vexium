@@ -15,6 +15,18 @@ const RecepcionDashboard = () => {
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                {/* Nueva Card para Gestión de Clases */}
+                <Link to="/recepcion/clases"
+                    className="bg-white rounded-2xl p-6 shadow hover:shadow-md transition">
+                    <h2 className="text-lg font-semibold text-gray-700">
+                        Gestión de Clases
+                    </h2>
+                    <p className="text-sm text-gray-400 mt-1">
+                        Crear, editar, y administrar los horarios de clases
+                    </p>
+                </Link>
+
                 <Link to="/recepcion/pagos"
                     className="bg-white rounded-2xl p-6 shadow hover:shadow-md transition">
                     <h2 className="text-lg font-semibold text-gray-700">

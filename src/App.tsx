@@ -44,9 +44,15 @@ function App() {
                 <AdminDashboard />
               </ProtectedRoute>
             } />
+            {/* Rutas del recepcionista */}
             <Route path="/recepcion/dashboard" element={
               <ProtectedRoute rolesPermitidos={['RECEPCIONISTA']}>
                 <RecepcionDashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/recepcion/clases" element={
+              <ProtectedRoute rolesPermitidos={['RECEPCIONISTA']}>
+                <GestionClases />
               </ProtectedRoute>
             } />
             <Route path="/socio/dashboard" element={

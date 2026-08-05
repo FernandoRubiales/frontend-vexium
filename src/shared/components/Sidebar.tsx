@@ -25,6 +25,7 @@ const navItemsAdmin: NavItem[] = [
 
 const navItemsRecepcion: NavItem[] = [
     { label: 'Inicio', path: '/recepcion/dashboard' },
+    { label: 'Clases', path: '/recepcion/clases' },
     { label: 'Registrar Pago', path: '/recepcion/pagos' },
 ];
 
