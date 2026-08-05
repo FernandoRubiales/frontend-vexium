@@ -75,7 +75,6 @@ const GestionTipoActividad = () => {
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">Tipos de Actividad</h1>
-                    <p className="text-sm text-gray-500">Creá, editá y administrá las disciplinas y actividades del gimnasio</p>
                 </div>
                 <button
                     onClick={abrirModalCrear}
@@ -108,8 +107,8 @@ const GestionTipoActividad = () => {
                                 </td>
                                 <td className="px-6 py-4">
                                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${act.requiereReserva
-                                            ? 'bg-blue-50 text-blue-700'
-                                            : 'bg-gray-100 text-gray-600'
+                                        ? 'bg-blue-50 text-blue-700'
+                                        : 'bg-gray-100 text-gray-600'
                                         }`}>
                                         {act.requiereReserva ? 'Requiere reserva' : 'Libre'}
                                     </span>

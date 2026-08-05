@@ -139,7 +139,6 @@ const AdminPlanesPage = () => {
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">Gestión de Planes</h1>
-                    <p className="text-sm text-gray-500">Creá, editá y administrá los planes activos</p>
                 </div>
                 <button
                     onClick={abrirModalCrear}

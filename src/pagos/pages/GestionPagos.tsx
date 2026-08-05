@@ -35,8 +35,8 @@ const GestionPagos = () => {
             header: 'Método',
             accessor: (pago: any) => (
                 <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${pago.metodoAbonado === 'Efectivo'
-                        ? 'bg-amber-50 text-amber-700'
-                        : 'bg-blue-50 text-blue-700'
+                    ? 'bg-amber-50 text-amber-700'
+                    : 'bg-blue-50 text-blue-700'
                     }`}>
                     {pago.metodoAbonado}
                 </span>
@@ -60,7 +60,6 @@ const GestionPagos = () => {
         <Layout>
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-gray-800">Control de Pagos</h1>
-                <p className="text-sm text-gray-500">Historial completo de todos los pagos registrados en el sistema</p>
             </div>
 
             {error && <ErrorMessage mensaje={error} />}

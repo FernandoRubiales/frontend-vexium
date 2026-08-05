@@ -170,7 +170,6 @@ const GestionSocios = () => {
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">Gestión de Socios y Usuarios</h1>
-                    <p className="text-sm text-gray-500">Administrá los perfiles, datos de contacto y roles del sistema</p>
                 </div>
                 <button
                     onClick={abrirModalCrear}

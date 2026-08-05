@@ -114,7 +114,6 @@ const GestionClases = () => {
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">Gestión de Clases</h1>
-                    <p className="text-sm text-gray-500">Creá, editá y administrá los horarios y cupos de las clases</p>
                 </div>
                 <button
                     onClick={abrirModalCrear}
