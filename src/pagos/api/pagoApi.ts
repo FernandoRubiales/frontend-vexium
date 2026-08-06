@@ -13,7 +13,6 @@ export const usePagoApi = () => {
     const obtenerMisPagos = () =>
         callApi<any[]>('GET', '/pagos/mis-pagos');
 
-
     const obtenerTodosLosPagos = (page = 0, size = 10) =>
         callApi<any>('GET', `/pagos/todos?page=${page}&size=${size}`);
 

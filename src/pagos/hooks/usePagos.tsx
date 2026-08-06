@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { usePagoApi } from '../api/pagoApi';
+import type { SocioPlan } from '../../shared/types';
 
 export const usePagos = (soloMisPagos = true) => {
     const [pagos, setPagos] = useState<any[]>([]);
@@ -12,27 +13,24 @@ export const usePagos = (soloMisPagos = true) => {
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
 
-    const { obtenerMisPagos, obtenerTodosLosPagos } = usePagoApi();
+    const { obtenerMisPagos, obtenerTodosLosPagos, buscarPlanesPendientesPorDni, registrarPagoEfectivo } = usePagoApi();
 
     const cargarPagos = async (paginaActual = page, tamanioPagina = size) => {
         try {
             setCargando(true);
             setError(null);
 
-            // Si es para admin, le pasamos page y size al endpoint
             const data = soloMisPagos
                 ? await obtenerMisPagos()
                 : await obtenerTodosLosPagos(paginaActual, tamanioPagina);
 
             const responseData = (data as any)?.data ? (data as any).data : data;
 
-            // Verificamos si la respuesta viene paginada (objeto con .content) o es una lista plana
             if (responseData && typeof responseData === 'object' && 'content' in responseData) {
                 setPagos(responseData.content);
                 setTotalPages(responseData.totalPages || 0);
                 setTotalElements(responseData.totalElements || 0);
             } else if (Array.isArray(responseData)) {
-                // Por si el endpoint de socio devuelve lista plana
                 setPagos(responseData);
                 setTotalPages(1);
                 setTotalElements(responseData.length);
@@ -47,7 +45,6 @@ export const usePagos = (soloMisPagos = true) => {
         }
     };
 
-    // Recargar cuando cambie la opción de vista o la página actual
     useEffect(() => {
         cargarPagos(page, size);
     }, [soloMisPagos, page, size]);
@@ -55,6 +52,27 @@ export const usePagos = (soloMisPagos = true) => {
     const cambiarPagina = (nuevaPagina: number) => {
         if (nuevaPagina >= 0 && nuevaPagina < totalPages) {
             setPage(nuevaPagina);
+        }
+    };
+
+    const buscarPlanesPendientes = async (dni: number): Promise<SocioPlan[]> => {
+        try {
+            const data = await buscarPlanesPendientesPorDni(dni);
+            const resultado = (data as any)?.data ? (data as any).data : data;
+            return resultado as SocioPlan[]; // <-- Acá está la corrección de TypeScript
+        } catch (err: any) {
+            const mensajeBackend = err.response?.data?.mensaje || err.response?.data?.message || 'Error al buscar socio por DNI';
+            throw new Error(mensajeBackend);
+        }
+    };
+
+    const cobrarEfectivo = async (socioPlanId: number, montoPago: number) => {
+        try {
+            await registrarPagoEfectivo(socioPlanId, montoPago);
+            await cargarPagos(page, size);
+        } catch (err: any) {
+            const mensajeBackend = err.response?.data?.mensaje || err.response?.data?.message || 'Error al registrar el pago';
+            throw new Error(mensajeBackend);
         }
     };
 
@@ -68,6 +86,8 @@ export const usePagos = (soloMisPagos = true) => {
         totalElements,
         setPage: cambiarPagina,
         setSize,
-        recargarPagos: () => cargarPagos(page, size)
+        recargarPagos: () => cargarPagos(page, size),
+        buscarPlanesPendientes,
+        cobrarEfectivo
     };
 };

@@ -25,8 +25,11 @@ const navItemsAdmin: NavItem[] = [
 
 const navItemsRecepcion: NavItem[] = [
     { label: 'Inicio', path: '/recepcion/dashboard' },
+    { label: 'Socios', path: '/recepcion/socios' },
+    { label: 'Planes', path: '/recepcion/planes' },
     { label: 'Clases', path: '/recepcion/clases' },
-    { label: 'Registrar Pago', path: '/recepcion/pagos' },
+    { label: 'Actividades', path: '/recepcion/actividades' },
+    { label: 'Pagos', path: '/recepcion/pagos' },
 ];
 
 interface SidebarProps {

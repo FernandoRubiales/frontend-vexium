@@ -44,6 +44,7 @@ export interface SocioPlan {
     fechaInicioSocioPlan: string | null;
     fechaVencimientoSocioPlan: string | null;
     estadoSocioPlan: string;
+    precio: number;
 }
 
 export interface Clase {

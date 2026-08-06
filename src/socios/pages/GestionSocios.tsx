@@ -6,9 +6,15 @@ import Modal from '../../shared/components/Modal';
 import ConfirmModal from '../../shared/components/ConfirmModal';
 import { Table } from '../../shared/components/Table';
 import { useSocios } from '../hooks/useSocios';
+// IMPORTAMOS EL CONTEXTO PARA SABER EL ROL DEL USUARIO ACTUAL
+import { useSocio } from '../context/SocioContext';
 
 const GestionSocios = () => {
     const { socios, cargando, error, crearSocio, actualizarSocio, actualizarRol, eliminarSocio } = useSocios();
+
+    // OBTENEMOS AL USUARIO LOGUEADO
+    const { socio: usuarioActual } = useSocio();
+    const isAdmin = usuarioActual?.nombreRol === 'ADMIN';
 
     const [modalAbierto, setModalAbierto] = useState(false);
     const [socioEditandoId, setSocioEditandoId] = useState<number | null>(null);
@@ -23,7 +29,7 @@ const GestionSocios = () => {
         email: '',
         telefono: '',
         fechaNacimiento: '',
-        auth0Id: 'auth0|temporal-admin-creado' // Valor por defecto si se crea manualmente desde el panel
+        auth0Id: 'auth0|temporal-admin-creado'
     });
 
     const abrirModalCrear = () => {
@@ -99,7 +105,6 @@ const GestionSocios = () => {
 
     if (cargando) return <Spinner />;
 
-    // Columnas utilizando la estructura genérica <Table />
     const columnas = [
         {
             header: 'Nombre y Apellido',
@@ -109,14 +114,8 @@ const GestionSocios = () => {
                 </span>
             )
         },
-        {
-            header: 'DNI',
-            accessor: 'dni' as keyof any
-        },
-        {
-            header: 'Email',
-            accessor: 'email' as keyof any
-        },
+        { header: 'DNI', accessor: 'dni' as keyof any },
+        { header: 'Email', accessor: 'email' as keyof any },
         {
             header: 'Teléfono',
             accessor: (socio: any) => socio.telefono || '-'
@@ -124,20 +123,28 @@ const GestionSocios = () => {
         {
             header: 'Rol',
             accessor: (socio: any) => (
-                <select
-                    className={`text-xs font-semibold px-2.5 py-1 rounded-full border border-gray-200 bg-white cursor-pointer ${socio.nombreRol === 'ADMIN'
-                        ? 'text-purple-700 bg-purple-50'
-                        : socio.nombreRol === 'RECEPCIONISTA'
-                            ? 'text-blue-700 bg-blue-50'
-                            : 'text-gray-700 bg-gray-50'
-                        }`}
-                    value={socio.nombreRol || 'SOCIO'}
-                    onChange={(e) => handleRolChange(socio.id, e.target.value)}
-                >
-                    <option value="SOCIO">SOCIO</option>
-                    <option value="RECEPCIONISTA">RECEPCIONISTA</option>
-                    <option value="ADMIN">ADMIN</option>
-                </select>
+                // SI ES ADMIN, MUESTRA EL SELECTOR, SI NO, SOLO MUESTRA TEXTO
+                isAdmin ? (
+                    <select
+                        className={`text-xs font-semibold px-2.5 py-1 rounded-full border border-gray-200 bg-white cursor-pointer ${socio.nombreRol === 'ADMIN' ? 'text-purple-700 bg-purple-50'
+                                : socio.nombreRol === 'RECEPCIONISTA' ? 'text-blue-700 bg-blue-50'
+                                    : 'text-gray-700 bg-gray-50'
+                            }`}
+                        value={socio.nombreRol || 'SOCIO'}
+                        onChange={(e) => handleRolChange(socio.id, e.target.value)}
+                    >
+                        <option value="SOCIO">SOCIO</option>
+                        <option value="RECEPCIONISTA">RECEPCIONISTA</option>
+                        <option value="ADMIN">ADMIN</option>
+                    </select>
+                ) : (
+                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border border-gray-200 ${socio.nombreRol === 'ADMIN' ? 'text-purple-700 bg-purple-50'
+                            : socio.nombreRol === 'RECEPCIONISTA' ? 'text-blue-700 bg-blue-50'
+                                : 'text-gray-700 bg-gray-50'
+                        }`}>
+                        {socio.nombreRol || 'SOCIO'}
+                    </span>
+                )
             )
         },
         {
@@ -151,15 +158,19 @@ const GestionSocios = () => {
                     >
                         Editar
                     </button>
-                    <button
-                        onClick={() => {
-                            setSocioAEliminar(socio);
-                            setModalBajaAbierto(true);
-                        }}
-                        className="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-xl font-medium transition text-xs cursor-pointer"
-                    >
-                        Eliminar
-                    </button>
+
+                    {/* EL BOTÓN DE ELIMINAR SOLO SE RENDERIZA SI ES ADMIN */}
+                    {isAdmin && (
+                        <button
+                            onClick={() => {
+                                setSocioAEliminar(socio);
+                                setModalBajaAbierto(true);
+                            }}
+                            className="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1.5 rounded-xl font-medium transition text-xs cursor-pointer"
+                        >
+                            Eliminar
+                        </button>
+                    )}
                 </div>
             )
         }
@@ -199,6 +210,7 @@ const GestionSocios = () => {
                 title={socioEditandoId !== null ? 'Editar Socio' : 'Registrar Nuevo Socio'}
                 onClose={() => setModalAbierto(false)}
             >
+                {/* ... (tu formulario se mantiene exactamente igual) ... */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-3">
                         <div>
@@ -285,7 +297,6 @@ const GestionSocios = () => {
                 </form>
             </Modal>
 
-            {/* Modal de confirmación de eliminación */}
             <ConfirmModal
                 isOpen={modalBajaAbierto}
                 message={`¿Estás seguro de eliminar al socio ${socioAEliminar?.nombre || ''} ${socioAEliminar?.apellido || ''}?`}

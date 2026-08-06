@@ -50,9 +50,29 @@ function App() {
                 <RecepcionDashboard />
               </ProtectedRoute>
             } />
+            <Route path="/recepcion/socios" element={
+              <ProtectedRoute rolesPermitidos={['RECEPCIONISTA']}>
+                <GestionSocios />
+              </ProtectedRoute>
+            } />
+            <Route path="/recepcion/planes" element={
+              <ProtectedRoute rolesPermitidos={['RECEPCIONISTA']}>
+                <GestionPlanes />
+              </ProtectedRoute>
+            } />
             <Route path="/recepcion/clases" element={
               <ProtectedRoute rolesPermitidos={['RECEPCIONISTA']}>
                 <GestionClases />
+              </ProtectedRoute>
+            } />
+            <Route path="/recepcion/actividades" element={
+              <ProtectedRoute rolesPermitidos={['RECEPCIONISTA']}>
+                <GestionTipoActividad />
+              </ProtectedRoute>
+            } />
+            <Route path="/recepcion/pagos" element={
+              <ProtectedRoute rolesPermitidos={['RECEPCIONISTA']}>
+                <GestionPagos />
               </ProtectedRoute>
             } />
             <Route path="/socio/dashboard" element={
