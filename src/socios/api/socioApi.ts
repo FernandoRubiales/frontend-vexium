@@ -19,5 +19,8 @@ export const useSocioApi = () => {
     const eliminarSocio = (id: number) =>
         callApi<void>('DELETE', `/socios/${id}`);
 
-    return { obtenerTodos, crearSocio, actualizarSocio, cambiarRol, eliminarSocio };
+    const obtenerVencimientosProximos = () =>
+        callApi('GET', '/socio-plan/vencimientos-proximos');
+
+    return { obtenerTodos, crearSocio, actualizarSocio, cambiarRol, eliminarSocio, obtenerVencimientosProximos };
 };

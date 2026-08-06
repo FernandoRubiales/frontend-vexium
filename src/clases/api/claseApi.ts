@@ -19,11 +19,15 @@ export const useClaseApi = () => {
     const darDeBajaClase = (id: number) =>
         callApi<void>('DELETE', `/clases/${id}`);
 
+    const obtenerClasesDelDia = (diaSemana: string) =>
+        callApi('GET', `/clases/dia/${diaSemana}`);
+
     return {
         obtenerDisponiblesHoy,
         obtenerTodas,
         crearClase,
         actualizarClase,
-        darDeBajaClase
+        darDeBajaClase,
+        obtenerClasesDelDia
     };
 };

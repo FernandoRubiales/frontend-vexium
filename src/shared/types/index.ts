@@ -66,6 +66,8 @@ export interface Reserva {
     fechaClaseReservada: string;
     horaInicio: string;
     horaFin: string;
+    nombreSocio?: string;
+    apellidoSocio?: string;
 }
 
 export interface Pago {

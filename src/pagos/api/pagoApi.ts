@@ -16,5 +16,8 @@ export const usePagoApi = () => {
     const obtenerTodosLosPagos = (page = 0, size = 10) =>
         callApi<any>('GET', `/pagos/todos?page=${page}&size=${size}`);
 
-    return { buscarPlanesPendientesPorDni, registrarPagoEfectivo, obtenerMisPagos, obtenerTodosLosPagos };
+    const obtenerIngresosHoy = () =>
+        callApi('GET', '/pagos/ingresos-hoy');
+
+    return { buscarPlanesPendientesPorDni, registrarPagoEfectivo, obtenerMisPagos, obtenerTodosLosPagos, obtenerIngresosHoy };
 };

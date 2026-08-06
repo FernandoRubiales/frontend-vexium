@@ -6,14 +6,14 @@ export const useReservas = () => {
     const [reservas, setReservas] = useState<Reserva[]>([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { obtenerMisReservas, reservar, cancelarReserva } = useReservaApi();
+    const { obtenerMisReservas, obtenerReservasPorClase, reservar, cancelarReserva } = useReservaApi();
 
     const cargarReservas = async () => {
         try {
             setCargando(true);
             const res = await obtenerMisReservas();
             const data = (res as any)?.data ? (res as any).data : res;
-            setReservas(data);
+            setReservas(Array.isArray(data) ? data : []);
         } catch {
             setError('Error al cargar las reservas');
         } finally {
@@ -21,6 +21,16 @@ export const useReservas = () => {
         }
     };
 
+    const cargarReservasDeClase = async (claseId: number): Promise<Reserva[]> => {
+        try {
+            const res = await obtenerReservasPorClase(claseId);
+            const resultado = (res as any)?.data ? (res as any).data : res;
+            return resultado as Reserva[];
+        } catch (err: any) {
+            const msj = err.response?.data?.mensaje || 'Error al obtener las reservas de la clase';
+            throw new Error(msj);
+        }
+    };
     const hacerReserva = async (claseId: number) => {
         setError(null);
         await reservar(claseId);
@@ -37,5 +47,12 @@ export const useReservas = () => {
         cargarReservas();
     }, []);
 
-    return { reservas, cargando, error, hacerReserva, anularReserva };
+    return {
+        reservas,
+        cargando,
+        error,
+        hacerReserva,
+        anularReserva,
+        cargarReservasDeClase
+    };
 };

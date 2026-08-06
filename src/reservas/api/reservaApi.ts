@@ -7,11 +7,14 @@ export const useReservaApi = () => {
     const obtenerMisReservas = () =>
         callApi<Reserva[]>('GET', '/reservas/mis-reservas');
 
+    const obtenerReservasPorClase = (claseId: number) =>
+        callApi<Reserva[]>('GET', `/reservas/clase/${claseId}`);
+
     const reservar = (claseId: number) =>
         callApi('POST', '/reservas', { claseId });
 
     const cancelarReserva = (reservaId: number) =>
         callApi('DELETE', `/reservas/${reservaId}`);
 
-    return { obtenerMisReservas, reservar, cancelarReserva };
+    return { obtenerMisReservas, obtenerReservasPorClase, reservar, cancelarReserva };
 };
