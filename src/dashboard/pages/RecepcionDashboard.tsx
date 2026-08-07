@@ -16,7 +16,7 @@ const RecepcionDashboard = () => {
         <Layout>
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-800">Panel de Recepción</h1>
-                <p className="text-gray-500 mt-1">Buen turno, {socio?.nombre}. Este es el resumen de hoy.</p>
+
             </div>
 
             {error && <ErrorMessage mensaje={error} />}
@@ -33,9 +33,7 @@ const RecepcionDashboard = () => {
                         <h3 className="text-emerald-100 font-semibold text-sm uppercase tracking-wider mb-1">Ingresos de Hoy (Caja)</h3>
                         <p className="text-4xl font-black">${ingresosHoy.toLocaleString('es-AR')}</p>
                     </div>
-                    <div className="mt-4 text-emerald-100 text-xs font-medium">
-                        Efectivo y MercadoPago
-                    </div>
+
                 </div>
 
                 {/* ACCESO RÁPIDO: PAGOS */}
@@ -45,7 +43,7 @@ const RecepcionDashboard = () => {
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
                         <h2 className="text-lg font-bold text-gray-800">Registrar Cobro</h2>
-                        <p className="text-sm text-gray-500 mt-1">Ingresar DNI para cobrar plan o check-in</p>
+
                     </div>
                 </Link>
 
@@ -56,7 +54,7 @@ const RecepcionDashboard = () => {
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                         </div>
                         <h2 className="text-lg font-bold text-gray-800">Cartelera de Clases</h2>
-                        <p className="text-sm text-gray-500 mt-1">Gestionar horarios, cupos y reservas</p>
+
                     </div>
                 </Link>
             </div>
