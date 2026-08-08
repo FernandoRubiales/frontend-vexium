@@ -122,7 +122,9 @@ const GestionPagos = () => {
             accessor: (pago: any) => (
                 <span className="text-gray-500 text-xs">
                     {pago.fechaHoraPago ? new Date(pago.fechaHoraPago).toLocaleDateString('es-AR', {
-                        day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric'
                     }) : '-'}
                 </span>
             )

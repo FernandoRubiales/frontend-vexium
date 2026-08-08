@@ -88,3 +88,20 @@ export interface ApiError {
     mensaje: string;
     timestamp: string;
 }
+
+export interface DistribucionIngreso {
+    metodo: string;
+    total: number;
+}
+
+export interface RankingClase {
+    actividad: string;
+    cantidadReservas: number;
+}
+
+export interface DashboardAdmin {
+    ingresosDelMes: number;
+    sociosActivos: number;
+    distribucionIngresos: DistribucionIngreso[];
+    rankingClases: RankingClase[];
+}

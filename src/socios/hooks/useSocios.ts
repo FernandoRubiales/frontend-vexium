@@ -6,7 +6,9 @@ export const useSocios = () => {
     const [socios, setSocios] = useState<Socio[]>([]);
     const [cargando, setCargando] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { obtenerTodos, crearSocio, actualizarSocio, cambiarRol, eliminarSocio } = useSocioApi();
+
+    // Eliminamos crearSocio de aquí
+    const { obtenerTodos, actualizarSocio, cambiarRol, eliminarSocio } = useSocioApi();
 
     const cargar = async () => {
         try {
@@ -20,11 +22,6 @@ export const useSocios = () => {
         } finally {
             setCargando(false);
         }
-    };
-
-    const crear = async (formData: any) => {
-        await crearSocio(formData);
-        await cargar();
     };
 
     const actualizar = async (id: number, formData: any) => {
@@ -50,7 +47,6 @@ export const useSocios = () => {
         socios,
         cargando,
         error,
-        crearSocio: crear,
         actualizarSocio: actualizar,
         actualizarRol,
         eliminarSocio: eliminar,

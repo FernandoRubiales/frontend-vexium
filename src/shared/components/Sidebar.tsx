@@ -12,6 +12,7 @@ const navItemsSocio: NavItem[] = [
     { label: 'Planes', path: '/socio/mis-planes' },
     { label: 'Clases', path: '/socio/clases' },
     { label: 'Pagos', path: '/socio/pagos' },
+    { label: 'Mi Perfil', path: '/socio/perfil' },
 ];
 
 const navItemsAdmin: NavItem[] = [

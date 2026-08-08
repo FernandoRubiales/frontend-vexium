@@ -25,6 +25,7 @@ import GestionPagos from './pagos/pages/GestionPagos';
 import GestionTipoActividad from './actividades/pages/GestionTipoActividad';
 //Pagina de socios
 import GestionSocios from './socios/pages/GestionSocios';
+import MiPerfil from './socios/pages/MiPerfil'
 
 
 
@@ -93,6 +94,11 @@ function App() {
             <Route path="/socio/pagos" element={
               <ProtectedRoute rolesPermitidos={['SOCIO']}>
                 <HistorialPagos />
+              </ProtectedRoute>
+            } />
+            <Route path="/socio/perfil" element={
+              <ProtectedRoute rolesPermitidos={['SOCIO']}>
+                <MiPerfil />
               </ProtectedRoute>
             } />
             <Route path="/admin/clases" element={

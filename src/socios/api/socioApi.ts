@@ -22,5 +22,11 @@ export const useSocioApi = () => {
     const obtenerVencimientosProximos = () =>
         callApi('GET', '/socio_plan/vencimientos_proximos');
 
-    return { obtenerTodos, crearSocio, actualizarSocio, cambiarRol, eliminarSocio, obtenerVencimientosProximos };
+    const obtenerMiPerfil = () =>
+        callApi<Socio>('GET', '/socios/perfil');
+
+    const actualizarMiPerfil = (data: any) =>
+        callApi<Socio>('PUT', '/socios/perfil', data);
+
+    return { obtenerTodos, crearSocio, actualizarSocio, cambiarRol, eliminarSocio, obtenerVencimientosProximos, obtenerMiPerfil, actualizarMiPerfil };
 };

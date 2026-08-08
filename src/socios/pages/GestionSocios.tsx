@@ -6,13 +6,12 @@ import Modal from '../../shared/components/Modal';
 import ConfirmModal from '../../shared/components/ConfirmModal';
 import { Table } from '../../shared/components/Table';
 import { useSocios } from '../hooks/useSocios';
-// IMPORTAMOS EL CONTEXTO PARA SABER EL ROL DEL USUARIO ACTUAL
 import { useSocio } from '../context/SocioContext';
 
 const GestionSocios = () => {
-    const { socios, cargando, error, crearSocio, actualizarSocio, actualizarRol, eliminarSocio } = useSocios();
+    // Ya no importamos crearSocio
+    const { socios, cargando, error, actualizarSocio, actualizarRol, eliminarSocio } = useSocios();
 
-    // OBTENEMOS AL USUARIO LOGUEADO
     const { socio: usuarioActual } = useSocio();
     const isAdmin = usuarioActual?.nombreRol === 'ADMIN';
 
@@ -29,23 +28,10 @@ const GestionSocios = () => {
         email: '',
         telefono: '',
         fechaNacimiento: '',
-        auth0Id: 'auth0|temporal-admin-creado'
+        auth0Id: ''
     });
 
-    const abrirModalCrear = () => {
-        setSocioEditandoId(null);
-        setFormulario({
-            nombre: '',
-            apellido: '',
-            dni: '',
-            email: '',
-            telefono: '',
-            fechaNacimiento: '',
-            auth0Id: 'auth0|temporal-' + Date.now()
-        });
-        setModalAbierto(true);
-    };
-
+    // Función para abrir el modal (solo en modo editar)
     const abrirModalEditar = (socio: any) => {
         setSocioEditandoId(socio.id);
         setFormulario({
@@ -55,7 +41,7 @@ const GestionSocios = () => {
             email: socio.email || '',
             telefono: socio.telefono || '',
             fechaNacimiento: socio.fechaNacimiento || '',
-            auth0Id: socio.auth0Id || 'auth0|temporal'
+            auth0Id: socio.auth0Id || ''
         });
         setModalAbierto(true);
     };
@@ -73,25 +59,25 @@ const GestionSocios = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (socioEditandoId === null) return; // Control de seguridad
+
         try {
             const dataRequest = {
                 nombre: formulario.nombre,
                 apellido: formulario.apellido,
                 dni: Number(formulario.dni),
-                email: formulario.email,
+                email: formulario.email, // Lo mandamos, pero el backend lo ignorará (idealmente)
                 telefono: formulario.telefono,
                 fechaNacimiento: formulario.fechaNacimiento ? formulario.fechaNacimiento : null,
                 auth0Id: formulario.auth0Id
             };
 
-            if (socioEditandoId !== null) {
-                await actualizarSocio(socioEditandoId, dataRequest);
-            } else {
-                await crearSocio(dataRequest);
-            }
+            // Solo actualizamos, ya no creamos
+            await actualizarSocio(socioEditandoId, dataRequest);
+
             setModalAbierto(false);
         } catch (err: any) {
-            alert(err.message || 'Error al guardar el socio');
+            alert(err.message || 'Error al guardar los cambios');
         }
     };
 
@@ -123,12 +109,11 @@ const GestionSocios = () => {
         {
             header: 'Rol',
             accessor: (socio: any) => (
-                // SI ES ADMIN, MUESTRA EL SELECTOR, SI NO, SOLO MUESTRA TEXTO
                 isAdmin ? (
                     <select
                         className={`text-xs font-semibold px-2.5 py-1 rounded-full border border-gray-200 bg-white cursor-pointer ${socio.nombreRol === 'ADMIN' ? 'text-purple-700 bg-purple-50'
-                                : socio.nombreRol === 'RECEPCIONISTA' ? 'text-blue-700 bg-blue-50'
-                                    : 'text-gray-700 bg-gray-50'
+                            : socio.nombreRol === 'RECEPCIONISTA' ? 'text-blue-700 bg-blue-50'
+                                : 'text-gray-700 bg-gray-50'
                             }`}
                         value={socio.nombreRol || 'SOCIO'}
                         onChange={(e) => handleRolChange(socio.id, e.target.value)}
@@ -139,8 +124,8 @@ const GestionSocios = () => {
                     </select>
                 ) : (
                     <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border border-gray-200 ${socio.nombreRol === 'ADMIN' ? 'text-purple-700 bg-purple-50'
-                            : socio.nombreRol === 'RECEPCIONISTA' ? 'text-blue-700 bg-blue-50'
-                                : 'text-gray-700 bg-gray-50'
+                        : socio.nombreRol === 'RECEPCIONISTA' ? 'text-blue-700 bg-blue-50'
+                            : 'text-gray-700 bg-gray-50'
                         }`}>
                         {socio.nombreRol || 'SOCIO'}
                     </span>
@@ -159,7 +144,6 @@ const GestionSocios = () => {
                         Editar
                     </button>
 
-                    {/* EL BOTÓN DE ELIMINAR SOLO SE RENDERIZA SI ES ADMIN */}
                     {isAdmin && (
                         <button
                             onClick={() => {
@@ -182,12 +166,7 @@ const GestionSocios = () => {
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">Gestión de Socios y Usuarios</h1>
                 </div>
-                <button
-                    onClick={abrirModalCrear}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-medium transition shadow-sm text-sm cursor-pointer"
-                >
-                    + Nuevo Socio
-                </button>
+                {/* BOTÓN DE CREAR SOCIO ELIMINADO DE ACÁ */}
             </div>
 
             {error && <ErrorMessage mensaje={error} />}
@@ -204,13 +183,12 @@ const GestionSocios = () => {
                 />
             )}
 
-            {/* Modal de Crear / Editar Socio */}
+            {/* Modal de Editar Socio (Título estático) */}
             <Modal
                 isOpen={modalAbierto}
-                title={socioEditandoId !== null ? 'Editar Socio' : 'Registrar Nuevo Socio'}
+                title="Editar Socio"
                 onClose={() => setModalAbierto(false)}
             >
-                {/* ... (tu formulario se mantiene exactamente igual) ... */}
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-3">
                         <div>
@@ -259,13 +237,17 @@ const GestionSocios = () => {
                     </div>
 
                     <div>
-                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Email</label>
+                        {/* AVISO VISUAL DE QUE NO SE PUEDE EDITAR */}
+                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">
+                            Email
+                        </label>
                         <input
                             type="email"
                             required
-                            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                            disabled // <-- LA MAGIA OCURRE AQUÍ
+                            className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-gray-100 text-gray-500 cursor-not-allowed focus:outline-none"
                             value={formulario.email}
-                            onChange={e => setFormulario({ ...formulario, email: e.target.value })}
+                        // Eliminamos el onChange porque no se puede escribir
                         />
                     </div>
 
@@ -291,7 +273,7 @@ const GestionSocios = () => {
                             type="submit"
                             className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm cursor-pointer"
                         >
-                            {socioEditandoId !== null ? 'Guardar Cambios' : 'Registrar Socio'}
+                            Guardar Cambios
                         </button>
                     </div>
                 </form>
