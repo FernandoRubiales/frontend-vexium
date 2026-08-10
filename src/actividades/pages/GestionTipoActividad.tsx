@@ -21,15 +21,15 @@ const GestionTipoActividad = () => {
     const [modalBajaAbierto, setModalBajaAbierto] = useState(false);
     const [actividadAEliminar, setActividadAEliminar] = useState<any | null>(null);
 
+    // 1. ELIMINADO EL CAMPO requiereReserva DEL ESTADO
     const [formulario, setFormulario] = useState({
         nombreTipoActividad: '',
-        descripcion: '',
-        requiereReserva: false
+        descripcion: ''
     });
 
     const abrirModalCrear = () => {
         setActividadEditandoId(null);
-        setFormulario({ nombreTipoActividad: '', descripcion: '', requiereReserva: false });
+        setFormulario({ nombreTipoActividad: '', descripcion: '' });
         setModalAbierto(true);
     };
 
@@ -37,8 +37,7 @@ const GestionTipoActividad = () => {
         setActividadEditandoId(actividad.id);
         setFormulario({
             nombreTipoActividad: actividad.nombreTipoActividad || '',
-            descripcion: actividad.descripcion || '',
-            requiereReserva: actividad.requiereReserva ?? false
+            descripcion: actividad.descripcion || ''
         });
         setModalAbierto(true);
     };
@@ -57,10 +56,10 @@ const GestionTipoActividad = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            // 2. ELIMINADO EL CAMPO requiereReserva DEL REQUEST
             const dataRequest = {
                 nombreTipoActividad: formulario.nombreTipoActividad,
-                descripcion: formulario.descripcion,
-                requiereReserva: Boolean(formulario.requiereReserva)
+                descripcion: formulario.descripcion
             };
 
             if (actividadEditandoId !== null) {
@@ -103,8 +102,7 @@ const GestionTipoActividad = () => {
                         <tr>
                             <th className="px-6 py-4 text-left">Nombre</th>
                             <th className="px-6 py-4 text-left">Descripción</th>
-                            <th className="px-6 py-4 text-left">Reserva</th>
-                            {/* CABECERA OCULTA PARA NO ADMINS */}
+                            {/* 3. ELIMINAMOS LA CABECERA DE RESERVA */}
                             {isAdmin && <th className="px-6 py-4 text-right">Acciones</th>}
                         </tr>
                     </thead>
@@ -117,14 +115,8 @@ const GestionTipoActividad = () => {
                                 <td className="px-6 py-4 text-gray-500">
                                     {act.descripcion}
                                 </td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${act.requiereReserva
-                                        ? 'bg-blue-50 text-blue-700'
-                                        : 'bg-gray-100 text-gray-600'
-                                        }`}>
-                                        {act.requiereReserva ? 'Requiere reserva' : 'Libre'}
-                                    </span>
-                                </td>
+                                {/* 3. ELIMINAMOS LA CELDA QUE MOSTRABA SI REQUERÍA RESERVA */}
+
                                 {/* CELDA OCULTA PARA NO ADMINS */}
                                 {isAdmin && (
                                     <td className="px-6 py-4 text-right space-x-2">
@@ -180,18 +172,8 @@ const GestionTipoActividad = () => {
                                     onChange={e => setFormulario({ ...formulario, descripcion: e.target.value })}
                                 />
                             </div>
-                            <div className="flex items-center space-x-3 pt-1">
-                                <input
-                                    type="checkbox"
-                                    id="requiereReserva"
-                                    className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-                                    checked={formulario.requiereReserva}
-                                    onChange={e => setFormulario({ ...formulario, requiereReserva: e.target.checked })}
-                                />
-                                <label htmlFor="requiereReserva" className="text-sm font-medium text-gray-700 select-none cursor-pointer">
-                                    Requiere reserva previa
-                                </label>
-                            </div>
+
+                            {/* 4. ELIMINAMOS EL CHECKBOX DE REQUIERE RESERVA DEL FORMULARIO */}
 
                             <div className="flex justify-end space-x-2 pt-2">
                                 <button

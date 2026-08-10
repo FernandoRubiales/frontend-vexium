@@ -15,14 +15,13 @@ export interface Plan {
     precio: number;
     diasPorSemana: number;
     clasesIncluidas: number;
-    tipoActividad: string;
+    tiposActividades: string[];
 }
 
 export interface TipoActividad {
     id: number;
     nombreTipoActividad: string;
     descripcion: string;
-    requiereReserva: boolean;
 }
 
 export interface PlanRequest {
@@ -30,7 +29,7 @@ export interface PlanRequest {
     descripcion: string;
     precio: number;
     diasPorSemana: number;
-    tipoActividadId: number;
+    tiposActividadesIds: number[];
 }
 
 export interface SocioPlan {
@@ -38,7 +37,7 @@ export interface SocioPlan {
     nombreSocio: string;
     apellidoSocio: string;
     nombrePlan: string;
-    tipoActividad: string;
+    tiposActividades: string[];
     clasesDisponibles: number;
     clasesIncluidas: number;
     fechaInicioSocioPlan: string | null;

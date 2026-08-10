@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { usePlanes } from '../hooks/usePlanes';
 import { useTipoActividad } from '../../actividades/hooks/useTipoActividad';
-// IMPORTAMOS EL CONTEXTO
 import { useSocio } from '../../socios/context/SocioContext';
 import Layout from '../../shared/components/Layout';
 import Spinner from '../../shared/components/Spinner';
@@ -11,11 +10,10 @@ import Modal from '../../shared/components/Modal';
 import { Table } from '../../shared/components/Table';
 import type { Plan } from '../../shared/types';
 
-const GestionPlanes = () => { // O AdminPlanesPage, como lo llames
+const GestionPlanes = () => {
     const { planes, cargando, error, crearNuevoPlan, actualizar, darDeBaja } = usePlanes();
     const { tiposActividad } = useTipoActividad();
 
-    // OBTENEMOS AL USUARIO LOGUEADO
     const { socio: usuarioActual } = useSocio();
     const isAdmin = usuarioActual?.nombreRol === 'ADMIN';
 
@@ -30,23 +28,29 @@ const GestionPlanes = () => { // O AdminPlanesPage, como lo llames
         descripcion: '',
         precio: '',
         diasPorSemana: '',
-        tipoActividadId: ''
+        tiposActividadesIds: [] as number[] // <-- ARREGLO
     });
 
     const abrirModalCrear = () => {
         setPlanEditandoId(null);
-        setFormulario({ nombrePlan: '', descripcion: '', precio: '', diasPorSemana: '', tipoActividadId: '' });
+        setFormulario({ nombrePlan: '', descripcion: '', precio: '', diasPorSemana: '', tiposActividadesIds: [] });
         setModalAbierto(true);
     };
 
     const abrirModalEditar = (plan: Plan) => {
         setPlanEditandoId(plan.id);
+
+        // Magia: Mapear los nombres devueltos por el backend con los IDs correspondientes para tildar los checkboxes
+        const idsSeleccionados = plan.tiposActividades
+            ?.map(nombre => tiposActividad.find(a => a.nombreTipoActividad === nombre)?.id)
+            .filter(id => id !== undefined) as number[] || [];
+
         setFormulario({
             nombrePlan: plan.nombrePlan,
             descripcion: plan.descripcion,
             precio: plan.precio.toString(),
             diasPorSemana: plan.diasPorSemana.toString(),
-            tipoActividadId: (plan as any).tipoActividadId?.toString() || ''
+            tiposActividadesIds: idsSeleccionados
         });
         setModalAbierto(true);
     };
@@ -62,11 +66,23 @@ const GestionPlanes = () => { // O AdminPlanesPage, como lo llames
         }
     };
 
+    // Función para manejar cuando tildan/destildan un checkbox
+    const handleActividadToggle = (actividadId: number) => {
+        setFormulario(prev => {
+            const idsActuales = prev.tiposActividadesIds;
+            if (idsActuales.includes(actividadId)) {
+                return { ...prev, tiposActividadesIds: idsActuales.filter(id => id !== actividadId) };
+            } else {
+                return { ...prev, tiposActividadesIds: [...idsActuales, actividadId] };
+            }
+        });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            if (!formulario.tipoActividadId) {
-                alert('Por favor, seleccioná un tipo de actividad.');
+            if (formulario.tiposActividadesIds.length === 0) {
+                alert('Por favor, seleccioná al menos un tipo de actividad.');
                 return;
             }
 
@@ -75,7 +91,7 @@ const GestionPlanes = () => { // O AdminPlanesPage, como lo llames
                 descripcion: formulario.descripcion,
                 precio: Number(formulario.precio),
                 diasPorSemana: Number(formulario.diasPorSemana),
-                tipoActividadId: Number(formulario.tipoActividadId)
+                tiposActividadesIds: formulario.tiposActividadesIds
             };
 
             if (planEditandoId !== null) {
@@ -91,7 +107,6 @@ const GestionPlanes = () => { // O AdminPlanesPage, como lo llames
 
     if (cargando) return <Spinner />;
 
-    // USAMOS SPREAD (...) PARA AGREGAR LA COLUMNA DE ACCIONES SOLO SI ES ADMIN
     const columnas = [
         {
             header: 'Nombre',
@@ -101,11 +116,19 @@ const GestionPlanes = () => { // O AdminPlanesPage, como lo llames
         },
         { header: 'Descripción', accessor: 'descripcion' as keyof Plan },
         {
-            header: 'Actividad',
+            header: 'Actividades Incluidas',
             accessor: (plan: Plan) => (
-                <span className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full text-xs font-medium">
-                    {plan.tipoActividad}
-                </span>
+                <div className="flex flex-wrap gap-1">
+                    {plan.tiposActividades && plan.tiposActividades.length > 0 ? (
+                        plan.tiposActividades.map((act, index) => (
+                            <span key={index} className="bg-indigo-50 text-indigo-700 px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap border border-indigo-100">
+                                {act}
+                            </span>
+                        ))
+                    ) : (
+                        <span className="text-gray-400 text-xs italic">Sin actividades</span>
+                    )}
+                </div>
             )
         },
         {
@@ -116,7 +139,6 @@ const GestionPlanes = () => { // O AdminPlanesPage, como lo llames
             header: 'Días',
             accessor: (plan: Plan) => `${plan.diasPorSemana}`
         },
-        // SI ES ADMIN, RENDERIZA ESTA COLUMNA. SI NO, LA IGNORA.
         ...(isAdmin ? [{
             header: 'Acciones',
             className: 'text-right',
@@ -150,7 +172,6 @@ const GestionPlanes = () => { // O AdminPlanesPage, como lo llames
                         {isAdmin ? 'Gestión de Planes' : 'Lista de Planes'}
                     </h1>
                 </div>
-                {/* EL BOTÓN DE NUEVO PLAN SOLO APARECE PARA ADMIN */}
                 {isAdmin && (
                     <button
                         onClick={abrirModalCrear}
@@ -165,8 +186,6 @@ const GestionPlanes = () => { // O AdminPlanesPage, como lo llames
 
             <Table columns={columnas} data={planes} keyExtractor={plan => plan.id} />
 
-            {/* LOS MODALES SOLO SE VAN A ABRIR SI ES ADMIN PORQUE LOS BOTONES ESTÁN OCULTOS, 
-                PERO PODEMOS DEJAR EL CÓDIGO IGUAL */}
             {isAdmin && (
                 <>
                     <Modal
@@ -174,7 +193,6 @@ const GestionPlanes = () => { // O AdminPlanesPage, como lo llames
                         title={planEditandoId !== null ? 'Editar Plan' : 'Crear Nuevo Plan'}
                         onClose={() => setModalAbierto(false)}
                     >
-                        {/* ... TODO EL FORMULARIO QUEDA EXACTAMENTE IGUAL ... */}
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Nombre</label>
@@ -218,23 +236,34 @@ const GestionPlanes = () => { // O AdminPlanesPage, como lo llames
                                     />
                                 </div>
                             </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Tipo de Actividad</label>
-                                <select
-                                    required
-                                    className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-white"
-                                    value={formulario.tipoActividadId}
-                                    onChange={e => setFormulario({ ...formulario, tipoActividadId: e.target.value })}
-                                >
-                                    <option value="">Seleccione un tipo de actividad...</option>
+
+                            {/* NUEVO BLOQUE DE CHECKBOXES PARA ACTIVIDADES */}
+                            <div className="pt-2">
+                                <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+                                    Actividades Incluidas
+                                </label>
+                                <div className="grid grid-cols-2 gap-3 border border-gray-200 rounded-xl p-4 bg-gray-50 max-h-48 overflow-y-auto">
                                     {tiposActividad.map(act => (
-                                        <option key={act.id} value={act.id}>
-                                            {act.nombreTipoActividad}
-                                        </option>
+                                        <div key={act.id} className="flex items-center space-x-2">
+                                            <input
+                                                type="checkbox"
+                                                id={`act-${act.id}`}
+                                                checked={formulario.tiposActividadesIds.includes(act.id)}
+                                                onChange={() => handleActividadToggle(act.id)}
+                                                className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer"
+                                            />
+                                            <label htmlFor={`act-${act.id}`} className="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                                                {act.nombreTipoActividad}
+                                            </label>
+                                        </div>
                                     ))}
-                                </select>
+                                </div>
+                                {formulario.tiposActividadesIds.length === 0 && (
+                                    <p className="text-xs text-red-500 mt-1">Debe seleccionar al menos una actividad.</p>
+                                )}
                             </div>
-                            <div className="flex justify-end space-x-2 pt-2">
+
+                            <div className="flex justify-end space-x-2 pt-4">
                                 <button
                                     type="button"
                                     onClick={() => setModalAbierto(false)}
@@ -254,7 +283,7 @@ const GestionPlanes = () => { // O AdminPlanesPage, como lo llames
 
                     <ConfirmModal
                         isOpen={modalBajaAbierto}
-                        message="¿Desea dar de baja?"
+                        message="¿Desea dar de baja este plan?"
                         onConfirm={confirmarBaja}
                         onClose={() => setModalBajaAbierto(false)}
                     />
