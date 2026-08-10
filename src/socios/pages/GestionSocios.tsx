@@ -9,7 +9,6 @@ import { useSocios } from '../hooks/useSocios';
 import { useSocio } from '../context/SocioContext';
 
 const GestionSocios = () => {
-    // Ya no importamos crearSocio
     const { socios, cargando, error, actualizarSocio, actualizarRol, eliminarSocio } = useSocios();
 
     const { socio: usuarioActual } = useSocio();
@@ -27,11 +26,9 @@ const GestionSocios = () => {
         dni: '',
         email: '',
         telefono: '',
-        fechaNacimiento: '',
-        auth0Id: ''
+        fechaNacimiento: ''
     });
 
-    // Función para abrir el modal (solo en modo editar)
     const abrirModalEditar = (socio: any) => {
         setSocioEditandoId(socio.id);
         setFormulario({
@@ -40,8 +37,7 @@ const GestionSocios = () => {
             dni: socio.dni?.toString() || '',
             email: socio.email || '',
             telefono: socio.telefono || '',
-            fechaNacimiento: socio.fechaNacimiento || '',
-            auth0Id: socio.auth0Id || ''
+            fechaNacimiento: socio.fechaNacimiento || ''
         });
         setModalAbierto(true);
     };
@@ -59,22 +55,19 @@ const GestionSocios = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (socioEditandoId === null) return; // Control de seguridad
+        if (socioEditandoId === null) return;
 
         try {
+
             const dataRequest = {
                 nombre: formulario.nombre,
                 apellido: formulario.apellido,
                 dni: Number(formulario.dni),
-                email: formulario.email, // Lo mandamos, pero el backend lo ignorará (idealmente)
                 telefono: formulario.telefono,
-                fechaNacimiento: formulario.fechaNacimiento ? formulario.fechaNacimiento : null,
-                auth0Id: formulario.auth0Id
+                fechaNacimiento: formulario.fechaNacimiento ? formulario.fechaNacimiento : null
             };
 
-            // Solo actualizamos, ya no creamos
             await actualizarSocio(socioEditandoId, dataRequest);
-
             setModalAbierto(false);
         } catch (err: any) {
             alert(err.message || 'Error al guardar los cambios');
@@ -164,9 +157,8 @@ const GestionSocios = () => {
         <Layout>
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800">Gestión de Socios y Usuarios</h1>
+                    <h1 className="text-2xl font-bold text-gray-800">Gestión de Socios</h1>
                 </div>
-                {/* BOTÓN DE CREAR SOCIO ELIMINADO DE ACÁ */}
             </div>
 
             {error && <ErrorMessage mensaje={error} />}
@@ -183,7 +175,6 @@ const GestionSocios = () => {
                 />
             )}
 
-            {/* Modal de Editar Socio (Título estático) */}
             <Modal
                 isOpen={modalAbierto}
                 title="Editar Socio"
@@ -237,17 +228,15 @@ const GestionSocios = () => {
                     </div>
 
                     <div>
-                        {/* AVISO VISUAL DE QUE NO SE PUEDE EDITAR */}
                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">
                             Email
                         </label>
                         <input
                             type="email"
                             required
-                            disabled // <-- LA MAGIA OCURRE AQUÍ
+                            disabled
                             className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-gray-100 text-gray-500 cursor-not-allowed focus:outline-none"
                             value={formulario.email}
-                        // Eliminamos el onChange porque no se puede escribir
                         />
                     </div>
 

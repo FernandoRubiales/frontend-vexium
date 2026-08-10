@@ -55,11 +55,14 @@ const PerfilSocio = () => {
             setError(null);
             setMensajeExito(false);
 
+            // Objeto limpio, idéntico al SocioUpdateDTO de Spring Boot. 
+            // Ya no usamos ...formulario para no arrastrar el email, y borramos el parche de auth0Id.
             const dataRequest = {
-                ...formulario,
+                nombre: formulario.nombre,
+                apellido: formulario.apellido,
                 dni: Number(formulario.dni),
-                // 👇 ACÁ ESTÁ EL PARCHE: Engañamos a la validación @NotBlank del backend
-                auth0Id: 'omitido-por-jwt'
+                telefono: formulario.telefono,
+                fechaNacimiento: formulario.fechaNacimiento ? formulario.fechaNacimiento : null
             };
 
             await actualizarMiPerfil(dataRequest);

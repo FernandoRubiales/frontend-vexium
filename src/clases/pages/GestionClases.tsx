@@ -232,7 +232,7 @@ const GestionClases = () => {
                                         {clase.horaInicio} - {clase.horaFin}
                                     </td>
                                     <td className="px-6 py-4 text-gray-600">
-                                        {clase.cuposDisponibles !== undefined ? clase.cuposDisponibles : clase.cupoMaximo} / {clase.cupoMaximo}
+                                        {clase.cupoMaximo}
                                     </td>
                                     <td className="px-6 py-4 text-right space-x-2 whitespace-nowrap">
                                         <button

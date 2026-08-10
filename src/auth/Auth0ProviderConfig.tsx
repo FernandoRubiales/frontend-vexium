@@ -17,6 +17,7 @@ export const Auth0ProviderConfig = ({ children }: { children: React.ReactNode })
                 redirect_uri: `${window.location.origin}/callback`,
                 audience: import.meta.env.VITE_AUTH0_AUDIENCE
             }}
+            cacheLocation="localstorage"
             onRedirectCallback={onRedirectCallback}
         >
             {children}

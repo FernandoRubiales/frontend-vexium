@@ -23,8 +23,8 @@ const ProtectedRoute = ({ children, rolesPermitidos }: ProtectedRouteProps) => {
         return <Navigate to="/login" replace />;
     }
 
-    // Si hay roles requeridos verificamos el del socio
-    if (rolesPermitidos && socio && !rolesPermitidos.includes(socio.nombreRol)) {
+    // Si hay roles requeridos verificamos el del socio 
+    if (rolesPermitidos && (!socio || !rolesPermitidos.includes(socio.nombreRol))) {
         return <Navigate to="/no-autorizado" replace />;
     }
 
