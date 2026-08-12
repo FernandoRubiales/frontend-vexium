@@ -20,100 +20,194 @@ const LoginPage = () => {
     }, [isAuthenticated, socio, navigate]);
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-50 font-sans">
+        <div className="min-h-screen flex flex-col bg-[#0F0F0F] text-white font-sans scroll-smooth selection:bg-[#E8A020] selection:text-[#0F0F0F]">
 
             {/* NAVBAR */}
-            <nav className="bg-white shadow-sm px-6 py-4 flex justify-between items-center sticky top-0 z-50">
-                <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-[#00ADB5] rounded-lg flex items-center justify-center">
-                        <span className="text-white font-black text-xl leading-none">V</span>
-                    </div>
-                    <span className="text-2xl font-black text-[#0F373A] tracking-widest">VEXIUM</span>
+            <nav className="fixed top-0 w-full z-50 px-6 py-4 flex justify-between items-center bg-[#0F0F0F]/90 backdrop-blur-md border-b border-[#1A1A1A]">
+                <div className="flex items-center space-x-3">
+                    <img
+                        src="/logo.png"
+                        alt="Logo Vexium"
+                        className="w-12 h-12 object-contain drop-shadow-[0_0_8px_rgba(232,160,32,0.5)]"
+                    />
+                    <span className="text-2xl font-black tracking-tight text-white uppercase">
+                        Vexium <span className="text-[#E8A020]">Gym</span>
+                    </span>
                 </div>
+
+                {/* Links de navegación interna */}
+                <div className="hidden md:flex space-x-8 text-sm font-bold text-gray-400 uppercase tracking-widest">
+                    <a href="#inicio" className="hover:text-[#FFBB45] transition-colors">Inicio</a>
+                    <a href="#actividades" className="hover:text-[#FFBB45] transition-colors">Actividades</a>
+                </div>
+
                 <button
                     onClick={() => loginWithRedirect()}
                     disabled={isLoading}
-                    className="bg-[#0F373A] hover:bg-[#154d52] text-white px-6 py-2 rounded-xl font-bold transition-colors text-sm shadow-sm cursor-pointer disabled:opacity-70"
+                    className="bg-[#C8860A] hover:bg-[#FFBB45] text-[#0F0F0F] px-6 py-2.5 rounded-sm font-extrabold uppercase tracking-widest transition-all text-sm shadow-[0_0_15px_rgba(200,134,10,0.4)] hover:shadow-[0_0_25px_rgba(255,187,69,0.6)] disabled:opacity-70 cursor-pointer"
                 >
                     {isLoading ? 'Cargando...' : 'Iniciar Sesión'}
                 </button>
             </nav>
 
-            {/* HERO SECTION (PORTADA) */}
-            <header className="bg-[#0F373A] text-white py-20 px-6 relative overflow-hidden">
-                <div className="max-w-4xl mx-auto text-center relative z-10">
-                    <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight">
-                        La evolución en la gestión de <span className="text-[#00ADB5]">tu Gimnasio</span>
-                    </h1>
-                    <p className="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl mx-auto font-medium">
-                        Centralizá tus clases, automatizá tus cobros y ofreceles a tus socios una experiencia digital de primer nivel.
-                    </p>
-                    <button
-                        onClick={() => loginWithRedirect()}
-                        disabled={isLoading}
-                        className="bg-[#00ADB5] hover:bg-[#0b6b70] text-white px-8 py-4 rounded-xl font-bold text-lg transition-transform transform hover:scale-105 shadow-lg cursor-pointer disabled:opacity-70"
-                    >
-                        Ingresar al Sistema
-                    </button>
-                </div>
+            {/* HERO SECTION (PORTADA OSCURA Y DORADA) */}
+            <header
+                id="inicio"
+                className="relative min-h-[85vh] flex items-center justify-center px-6 pt-20 overflow-hidden bg-[#0F0F0F]"
+            >
+                {/* Background Image con tu archivo fondo.png y filtro oscuro */}
+                <div
+                    className="absolute inset-0 opacity-40 mix-blend-luminosity"
+                    style={{
+                        backgroundImage: 'url("/fondo.png")',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center',
+                        backgroundAttachment: 'fixed'
+                    }}
+                ></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0F0F0F]/40 via-[#0F0F0F]/80 to-[#0F0F0F]"></div>
 
-                {/* Decoración de fondo */}
-                <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 opacity-10 pointer-events-none">
-                    <div className="absolute -top-24 -left-24 w-96 h-96 bg-[#00ADB5] rounded-full blur-3xl"></div>
-                    <div className="absolute bottom-10 -right-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
+                <div className="relative z-10 text-center max-w-4xl mx-auto pt-10">
+                    <span className="text-[#E8A020] font-bold tracking-[0.2em] uppercase text-sm mb-4 block">
+                        Superá tus límites
+                    </span>
+                    <h1 className="text-5xl md:text-7xl font-black text-white mb-6 leading-tight drop-shadow-xl uppercase tracking-tighter">
+                        Entrená a <br /> <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#C8860A] via-[#E8A020] to-[#FFBB45]">otro nivel</span>
+                    </h1>
+                    <p className="text-lg md:text-xl text-gray-400 mb-10 max-w-2xl mx-auto font-medium drop-shadow-md">
+                        Equipamiento premium, profesionales capacitados y una plataforma 100% digital para gestionar tus reservas y membresías.
+                    </p>
+                    <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+                        <button
+                            onClick={() => loginWithRedirect()}
+                            disabled={isLoading}
+                            className="w-full sm:w-auto bg-gradient-to-r from-[#C8860A] to-[#E8A020] hover:from-[#E8A020] hover:to-[#FFBB45] text-[#0F0F0F] px-10 py-4 rounded-sm font-black uppercase tracking-widest text-lg transition-transform transform hover:scale-105 shadow-[0_0_30px_rgba(200,134,10,0.3)] cursor-pointer disabled:opacity-70"
+                        >
+                            Empezar ahora
+                        </button>
+                    </div>
                 </div>
             </header>
 
-            {/* FEATURES SECTION (CARACTERÍSTICAS) */}
-            <section className="py-20 px-6 max-w-6xl mx-auto flex-1">
+            {/* SECCIÓN ACTIVIDADES (GRILLA ESTILO DARK/GOLD) */}
+            <section id="actividades" className="py-24 px-6 max-w-7xl mx-auto flex-1 w-full bg-[#1A1A1A]">
                 <div className="text-center mb-16">
-                    <h2 className="text-3xl font-bold text-[#0F373A] mb-4">Todo lo que necesitás en un solo lugar</h2>
-                    <p className="text-gray-500">Diseñado específicamente para optimizar el tiempo de administradores y socios.</p>
+                    <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tight text-white mb-4">Nuestras Actividades</h2>
+                    <p className="text-gray-400 text-lg">Elegí tu disciplina. Nosotros te damos el espacio.</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
                     {/* Tarjeta 1 */}
-                    <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
-                        <div className="w-14 h-14 bg-teal-50 text-[#00ADB5] rounded-2xl flex items-center justify-center mx-auto mb-6">
-                            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <div className="bg-[#0F0F0F] border border-[#2A2A2A] hover:border-[#E8A020] p-8 rounded-sm flex flex-col items-center text-center transition-all cursor-pointer shadow-sm hover:shadow-[0_0_20px_rgba(232,160,32,0.15)] hover:-translate-y-1 group">
+                        <div className="w-16 h-16 bg-[#1A1A1A] text-[#E8A020] group-hover:bg-[#C8860A] group-hover:text-[#0F0F0F] rounded-sm flex items-center justify-center mb-6 transition-all duration-300">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6h18M3 12h18M3 18h18"></path></svg>
                         </div>
-                        <h3 className="text-xl font-bold text-gray-800 mb-3">Gestión de Socios</h3>
-                        <p className="text-gray-500 text-sm leading-relaxed">
-                            Administrá perfiles, historiales y roles (Admin, Recepción, Socio) con un control de acceso seguro.
+                        <h3 className="text-lg font-black uppercase tracking-wider text-white mb-3">Musculación</h3>
+                        <p className="text-sm text-gray-400 leading-relaxed">
+                            Equipamiento de última generación y profes siempre presentes.
                         </p>
                     </div>
 
                     {/* Tarjeta 2 */}
-                    <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
-                        <div className="w-14 h-14 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <div className="bg-[#0F0F0F] border border-[#2A2A2A] hover:border-[#E8A020] p-8 rounded-sm flex flex-col items-center text-center transition-all cursor-pointer shadow-sm hover:shadow-[0_0_20px_rgba(232,160,32,0.15)] hover:-translate-y-1 group">
+                        <div className="w-16 h-16 bg-[#1A1A1A] text-[#E8A020] group-hover:bg-[#C8860A] group-hover:text-[#0F0F0F] rounded-sm flex items-center justify-center mb-6 transition-all duration-300">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"></path></svg>
                         </div>
-                        <h3 className="text-xl font-bold text-gray-800 mb-3">Reserva de Clases</h3>
-                        <p className="text-gray-500 text-sm leading-relaxed">
-                            Cartelera de horarios interactiva. Los socios pueden inscribirse a sus clases favoritas respetando los cupos máximos.
+                        <h3 className="text-lg font-black uppercase tracking-wider text-white mb-3">Crossfit</h3>
+                        <p className="text-sm text-gray-400 leading-relaxed">
+                            Entrenamiento de alta intensidad para desafiar tus límites.
                         </p>
                     </div>
 
                     {/* Tarjeta 3 */}
-                    <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow">
-                        <div className="w-14 h-14 bg-emerald-50 text-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                    <div className="bg-[#0F0F0F] border border-[#2A2A2A] hover:border-[#E8A020] p-8 rounded-sm flex flex-col items-center text-center transition-all cursor-pointer shadow-sm hover:shadow-[0_0_20px_rgba(232,160,32,0.15)] hover:-translate-y-1 group">
+                        <div className="w-16 h-16 bg-[#1A1A1A] text-[#E8A020] group-hover:bg-[#C8860A] group-hover:text-[#0F0F0F] rounded-sm flex items-center justify-center mb-6 transition-all duration-300">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
-                        <h3 className="text-xl font-bold text-gray-800 mb-3">Control de Pagos</h3>
-                        <p className="text-gray-500 text-sm leading-relaxed">
-                            Integración con MercadoPago, seguimiento de vencimientos de planes y reportes de ingresos mensuales.
+                        <h3 className="text-lg font-black uppercase tracking-wider text-white mb-3">Spinning</h3>
+                        <p className="text-sm text-gray-400 leading-relaxed">
+                            Quema calorías al ritmo de la mejor música de la ciudad.
                         </p>
                     </div>
+
+                    {/* Tarjeta 4 */}
+                    <div className="bg-[#0F0F0F] border border-[#2A2A2A] hover:border-[#E8A020] p-8 rounded-sm flex flex-col items-center text-center transition-all cursor-pointer shadow-sm hover:shadow-[0_0_20px_rgba(232,160,32,0.15)] hover:-translate-y-1 group">
+                        <div className="w-16 h-16 bg-[#1A1A1A] text-[#E8A020] group-hover:bg-[#C8860A] group-hover:text-[#0F0F0F] rounded-sm flex items-center justify-center mb-6 transition-all duration-300">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path></svg>
+                        </div>
+                        <h3 className="text-lg font-black uppercase tracking-wider text-white mb-3">Zumba</h3>
+                        <p className="text-sm text-gray-400 leading-relaxed">
+                            Diversión y cardio en una sola actividad interactiva.
+                        </p>
+                    </div>
+
+                    {/* Tarjeta 5 */}
+                    <div className="bg-[#0F0F0F] border border-[#2A2A2A] hover:border-[#E8A020] p-8 rounded-sm flex flex-col items-center text-center transition-all cursor-pointer shadow-sm hover:shadow-[0_0_20px_rgba(232,160,32,0.15)] hover:-translate-y-1 group">
+                        <div className="w-16 h-16 bg-[#1A1A1A] text-[#E8A020] group-hover:bg-[#C8860A] group-hover:text-[#0F0F0F] rounded-sm flex items-center justify-center mb-6 transition-all duration-300">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        </div>
+                        <h3 className="text-lg font-black uppercase tracking-wider text-white mb-3">Funcional</h3>
+                        <p className="text-sm text-gray-400 leading-relaxed">
+                            Mejora tu movilidad y fuerza aplicada a la vida diaria.
+                        </p>
+                    </div>
+
+                    {/* Tarjeta 6 */}
+                    <div className="bg-[#0F0F0F] border border-[#2A2A2A] hover:border-[#E8A020] p-8 rounded-sm flex flex-col items-center text-center transition-all cursor-pointer shadow-sm hover:shadow-[0_0_20px_rgba(232,160,32,0.15)] hover:-translate-y-1 group">
+                        <div className="w-16 h-16 bg-[#1A1A1A] text-[#E8A020] group-hover:bg-[#C8860A] group-hover:text-[#0F0F0F] rounded-sm flex items-center justify-center mb-6 transition-all duration-300">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                        </div>
+                        <h3 className="text-lg font-black uppercase tracking-wider text-white mb-3">Pilates</h3>
+                        <p className="text-sm text-gray-400 leading-relaxed">
+                            Control, respiración y fortalecimiento del core.
+                        </p>
+                    </div>
+
+                    {/* Tarjeta 7 */}
+                    <div className="bg-[#0F0F0F] border border-[#2A2A2A] hover:border-[#E8A020] p-8 rounded-sm flex flex-col items-center text-center transition-all cursor-pointer shadow-sm hover:shadow-[0_0_20px_rgba(232,160,32,0.15)] hover:-translate-y-1 group">
+                        <div className="w-16 h-16 bg-[#1A1A1A] text-[#E8A020] group-hover:bg-[#C8860A] group-hover:text-[#0F0F0F] rounded-sm flex items-center justify-center mb-6 transition-all duration-300">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </div>
+                        <h3 className="text-lg font-black uppercase tracking-wider text-white mb-3">Localizada</h3>
+                        <p className="text-sm text-gray-400 leading-relaxed">
+                            Tonificación específica para cada grupo muscular.
+                        </p>
+                    </div>
+
+                    {/* Tarjeta 8 */}
+                    <div className="bg-[#0F0F0F] border border-[#2A2A2A] hover:border-[#E8A020] p-8 rounded-sm flex flex-col items-center text-center transition-all cursor-pointer shadow-sm hover:shadow-[0_0_20px_rgba(232,160,32,0.15)] hover:-translate-y-1 group">
+                        <div className="w-16 h-16 bg-[#1A1A1A] text-[#E8A020] group-hover:bg-[#C8860A] group-hover:text-[#0F0F0F] rounded-sm flex items-center justify-center mb-6 transition-all duration-300">
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        </div>
+                        <h3 className="text-lg font-black uppercase tracking-wider text-white mb-3">GAP</h3>
+                        <p className="text-sm text-gray-400 leading-relaxed">
+                            Glúteos, Abdominales y Piernas en máxima potencia.
+                        </p>
+                    </div>
+
                 </div>
             </section>
 
             {/* FOOTER */}
-            <footer className="bg-white border-t border-gray-200 py-8 text-center text-sm font-medium text-gray-400 mt-auto">
-                <div className="flex justify-center items-center space-x-2 mb-2">
-                    <span className="w-5 h-5 bg-[#00ADB5] rounded flex items-center justify-center text-white text-[10px] font-bold">V</span>
-                    <span className="text-[#0F373A] font-bold tracking-wider">VEXIUM</span>
+            <footer className="bg-[#0F0F0F] text-gray-500 py-12 px-6 border-t border-[#1A1A1A] mt-auto">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8 pb-8 border-b border-[#1A1A1A]">
+                    <div className="flex items-center space-x-3 mb-6 md:mb-0">
+                        <img
+                            src="/logo.png"
+                            alt="Logo Vexium"
+                            className="w-10 h-10 object-contain filter drop-shadow-md grayscale hover:grayscale-0 transition-all"
+                        />
+                        <span className="font-extrabold tracking-widest uppercase text-gray-300 text-lg">Vexium Gym</span>
+                    </div>
+
+                    <div className="flex space-x-6">
+                        <button onClick={() => loginWithRedirect()} className="text-gray-400 text-sm uppercase tracking-wider font-bold hover:text-[#E8A020] transition-colors cursor-pointer">Ingreso de Socios</button>
+                    </div>
                 </div>
-                &copy; {new Date().getFullYear()} Proyecto Final - Ingeniería en Sistemas. Todos los derechos reservados.
+                <div className="text-center text-xs font-medium uppercase tracking-widest text-[#3A3A3A]">
+                    &copy; {new Date().getFullYear()} Proyecto Final - Ingeniería en Sistemas. Todos los derechos reservados.
+                </div>
             </footer>
 
         </div>
